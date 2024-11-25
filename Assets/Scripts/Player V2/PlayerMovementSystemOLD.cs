@@ -2,7 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public partial struct PlayerMovementSystem : ISystem
+public partial struct PlayerMovementSystemOld : ISystem
 {
     public void OnUpdate(ref SystemState state)
     {

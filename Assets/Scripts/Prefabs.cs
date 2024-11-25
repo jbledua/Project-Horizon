@@ -3,27 +3,41 @@ using Unity.Entities;
 
 public class Prefabs : MonoBehaviour
 {
-    public GameObject prefab = null;
+    public GameObject unit = null;
+    public GameObject player = null;
 
    
 }
 
 public struct PrefabsData: IComponentData
 {
-    public Entity prefab;
+    public Entity unit;
+    public Entity player;
+
 }
 
 public class PrefabBacker : Baker<Prefabs>
 {
     public override void Bake(Prefabs authoring)
     {
-        if (authoring.prefab != null)
+        Entity unitPrefab = default;
+        Entity playerPrefab = default;
+
+        if (authoring.unit != null)
         {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
-            AddComponent(entity, new PrefabsData
-            {
-                prefab = GetEntity(authoring.prefab, TransformUsageFlags.Dynamic)
-            }) ;
+            unitPrefab = GetEntity(authoring.unit, TransformUsageFlags.Dynamic);
         }
+
+        if (authoring.player != null)
+        {
+            playerPrefab = GetEntity(authoring.player, TransformUsageFlags.Dynamic);
+        }
+
+        var entity = GetEntity(TransformUsageFlags.Dynamic);
+        AddComponent(entity, new PrefabsData
+        {
+            unit = unitPrefab,
+            player = playerPrefab
+        });
     }
 }

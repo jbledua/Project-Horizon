@@ -32,15 +32,17 @@ public partial class ClientSystem : SystemBase
             Debug.Log(command.ValueRO.message);
             commandBuffer.DestroyEntity(entity);
         }
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.T))
         {
-            SpawnUnitRPC(ConnectionManager.clientWorld);
+            SendMessageRpc("Hello", ConnectionManager.clientWorld);
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            SendMessageRpc("Hello", ConnectionManager.clientWorld);
+            SpawnUnitRPC(ConnectionManager.clientWorld);
         }
+
+ 
         commandBuffer.Playback(EntityManager);
         commandBuffer.Dispose();
     }

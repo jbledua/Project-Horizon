@@ -39,9 +39,9 @@ public partial class ServerSystem : SystemBase
         foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<SpawnUnitRpcCommand>>().WithEntityAccess())
         {
             PrefabsData prefabs;
-            if (SystemAPI.TryGetSingleton<PrefabsData>(out prefabs) && prefabs.prefab != null)
+            if (SystemAPI.TryGetSingleton<PrefabsData>(out prefabs) && prefabs.unit != null)
             {
-                Entity unit = commandBuffer.Instantiate(prefabs.prefab);
+                Entity unit = commandBuffer.Instantiate(prefabs.unit);
                 commandBuffer.SetComponent(unit, new LocalTransform()
                 {
                     Position = new float3(UnityEngine.Random.Range(-10f, 10f), 0, UnityEngine.Random.Range(-10f, 10f)),
@@ -68,7 +68,28 @@ public partial class ServerSystem : SystemBase
         foreach (var (id, entity) in SystemAPI.Query<RefRO<NetworkId>>().WithNone<InitializedClient>().WithEntityAccess())
         {
             commandBuffer.AddComponent<InitializedClient>(entity);
-            SendMessageRpc("Client connected with id = " + id.ValueRO.Value, ConnectionManager.serverWorld);
+            PrefabsData prefabManager = SystemAPI.GetSingleton<PrefabsData>();
+            if (prefabManager.player != null)
+            {
+                Entity player = commandBuffer.Instantiate(prefabManager.player);
+                commandBuffer.SetComponent(player, new LocalTransform
+                {
+                    Position = new float3(UnityEngine.Random.Range(-10,10),0, UnityEngine.Random.Range(-10, 10)),
+                    //Position = new float3(UnityEngine.Random.Range(-10, 10), 0, UnityEngine.Random.Range(-10, 10)),
+                    //Rotation = quaternion.identity,
+                    Rotation = Quaternion.Euler(-90f, 0f, 0f),
+                Scale = 0.01f
+                });
+
+                commandBuffer.SetComponent(player, new GhostOwner()
+                {
+                    NetworkId = id.ValueRO.Value
+                });
+                commandBuffer.AppendToBuffer(entity, new LinkedEntityGroup() 
+                { 
+                    Value = player
+                });
+            }
         }
         commandBuffer.Playback(EntityManager);
         commandBuffer.Dispose();
