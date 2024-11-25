@@ -10,6 +10,11 @@ public struct ClientMessageRpcCommand : IRpcCommand
     public FixedString64Bytes message;
 }
 
+public struct SpawnUnitRpcCommand : IRpcCommand
+{
+
+}
+
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
 public partial class ClientSystem : SystemBase
 {
@@ -27,6 +32,11 @@ public partial class ClientSystem : SystemBase
             Debug.Log(command.ValueRO.message);
             commandBuffer.DestroyEntity(entity);
         }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            SpawnUnitRPC(ConnectionManager.clientWorld);
+        }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             SendMessageRpc("Hello", ConnectionManager.clientWorld);
@@ -46,6 +56,15 @@ public partial class ClientSystem : SystemBase
         {
             message = text
         });
+    }
+
+    public void SpawnUnitRPC(World world)
+    {
+        if (world == null || world.IsCreated == false)
+        {
+            return;
+        }
+        world.EntityManager.CreateEntity(typeof(SendRpcCommandRequest), typeof(SpawnUnitRpcCommand));
     }
 
 }
