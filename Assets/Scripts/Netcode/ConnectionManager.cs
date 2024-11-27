@@ -11,7 +11,7 @@ using UnityEngine;
 public class ConnectionManager : MonoBehaviour
 {
 
-    [SerializeField] private string _listenIp = "127.0.0.1";
+    [SerializeField] private string _listenIp = "0.0.0.0";
     [SerializeField] private string _connectIp = "127.0.0.1";
     [SerializeField] private ushort _port = 7979;
 
@@ -54,6 +54,9 @@ public class ConnectionManager : MonoBehaviour
         // Create Client World
         if (_role == Role.ServerClient || _role == Role.Client)
         {
+
+
+
             clientWorld = ClientServerBootstrap.CreateClientWorld("ClientWorld");
         }
 
