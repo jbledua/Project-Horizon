@@ -137,6 +137,14 @@ public class ConnectionManager : MonoBehaviour
             using var query = clientWorld.EntityManager.CreateEntityQuery(ComponentType.ReadWrite<NetworkStreamDriver>());
             query.GetSingletonRW<NetworkStreamDriver>().ValueRW.Connect(clientWorld.EntityManager, NetworkEndpoint.Parse(_connectIp, _port));
         }
+
+        Debug.Log($"Role: {_role}");
+        Debug.Log($"ServerWorld Created: {serverWorld?.IsCreated}");
+        Debug.Log($"ClientWorld Created: {clientWorld?.IsCreated}");
+   
     }
+
+    
+
 
 }

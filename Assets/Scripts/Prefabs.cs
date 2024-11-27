@@ -3,7 +3,7 @@ using Unity.Entities;
 
 public class Prefabs : MonoBehaviour
 {
-    public GameObject unit = null;
+    public GameObject missile = null;
     public GameObject player = null;
 
    
@@ -11,7 +11,7 @@ public class Prefabs : MonoBehaviour
 
 public struct PrefabsData: IComponentData
 {
-    public Entity unit;
+    public Entity missile;
     public Entity player;
 
 }
@@ -20,12 +20,12 @@ public class PrefabBacker : Baker<Prefabs>
 {
     public override void Bake(Prefabs authoring)
     {
-        Entity unitPrefab = default;
+        Entity missilePrefab = default;
         Entity playerPrefab = default;
 
-        if (authoring.unit != null)
+        if (authoring.missile != null)
         {
-            unitPrefab = GetEntity(authoring.unit, TransformUsageFlags.Dynamic);
+            missilePrefab = GetEntity(authoring.missile, TransformUsageFlags.Dynamic);
         }
 
         if (authoring.player != null)
@@ -36,7 +36,7 @@ public class PrefabBacker : Baker<Prefabs>
         var entity = GetEntity(TransformUsageFlags.Dynamic);
         AddComponent(entity, new PrefabsData
         {
-            unit = unitPrefab,
+            missile = missilePrefab,
             player = playerPrefab
         });
     }

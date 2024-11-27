@@ -39,10 +39,10 @@ public partial class ServerSystem : SystemBase
         foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<SpawnUnitRpcCommand>>().WithEntityAccess())
         {
             PrefabsData prefabs;
-            if (SystemAPI.TryGetSingleton<PrefabsData>(out prefabs) && prefabs.unit != null)
+            if (SystemAPI.TryGetSingleton<PrefabsData>(out prefabs) && prefabs.missile != null)
             {
-                Entity unit = commandBuffer.Instantiate(prefabs.unit);
-                commandBuffer.SetComponent(unit, new LocalTransform()
+                Entity missile = commandBuffer.Instantiate(prefabs.missile);
+                commandBuffer.SetComponent(missile, new LocalTransform()
                 {
                     Position = new float3(UnityEngine.Random.Range(-10f, 10f), 0, UnityEngine.Random.Range(-10f, 10f)),
                     Rotation = quaternion.identity,
@@ -50,7 +50,7 @@ public partial class ServerSystem : SystemBase
                 });
 
                 var networkId = _clients[request.ValueRO.SourceConnection];
-                commandBuffer.SetComponent(unit, new GhostOwner()
+                commandBuffer.SetComponent(missile, new GhostOwner()
                 {
                     NetworkId = networkId.Value
                 });
@@ -58,7 +58,7 @@ public partial class ServerSystem : SystemBase
                 // Link 
                 commandBuffer.AppendToBuffer(request.ValueRO.SourceConnection, new LinkedEntityGroup()
                 {
-                    Value = unit
+                    Value = missile
                 });
                 commandBuffer.DestroyEntity(entity);
             }
