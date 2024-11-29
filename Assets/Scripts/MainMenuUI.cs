@@ -215,25 +215,28 @@ public class MainMenuUI : MonoBehaviour
 
     private void OnConnectPressed(string ip, string port)
     {
-
-        // Add connection logic here
-        
         Debug.Log("Connect Pressed");
 
         if (connectionManager == null)
         {
-            Debug.LogError("ConnectionManager reference is null. Cannot start private session.");
+            Debug.LogError("ConnectionManager reference is null. Cannot start connection.");
             return;
         }
 
-        // Need to convert string port to ushort
+        // Try to convert the port to ushort
+        if (!ushort.TryParse(port, out ushort parsedPort))
+        {
+            Debug.LogError($"Invalid port number: {port}. Please enter a valid number between 0 and 65535.");
+            return;
+        }
 
-        // Call StartPrivate on the ConnectionManager
-        connectionManager.StartConnction(ip, 7979);
+        // Call StartConnection on the ConnectionManager
+        connectionManager.StartConnection(ip, parsedPort);
 
         // Hide the UIDocument by disabling it
         _document.gameObject.SetActive(false);
     }
+
 
     private void OnStartHostPressed(string port)
     {
@@ -246,10 +249,15 @@ public class MainMenuUI : MonoBehaviour
             return;
         }
 
-        // Need to convert string port to ushort
+        // Try to convert the port to ushort
+        if (!ushort.TryParse(port, out ushort parsedPort))
+        {
+            Debug.LogError($"Invalid port number: {port}. Please enter a valid number between 0 and 65535.");
+            return;
+        }
 
         // Call StartPrivate on the ConnectionManager
-        connectionManager.StartHosting(7979);
+        connectionManager.StartHosting(parsedPort);
 
         // Hide the UIDocument by disabling it
         _document.gameObject.SetActive(false);

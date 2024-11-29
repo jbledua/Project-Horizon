@@ -76,14 +76,14 @@ public class ConnectionManager : MonoBehaviour
         StartCoroutine(Connect());
     }
 
-    public void StartConnction(string _ip, ushort _port)
+    public void StartConnection(string _ip, ushort _port)
     {
         Debug.Log($"Connecting to {_ip}:{_port}");
 
   
         listenIp = _ip;
         connectIp = _ip;
-        port = 7979;
+        port = _port;
 
         _role = Role.Client;
         StartCoroutine(Connect());
