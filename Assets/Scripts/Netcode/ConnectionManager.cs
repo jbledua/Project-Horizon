@@ -11,9 +11,9 @@ using UnityEngine;
 public class ConnectionManager : MonoBehaviour
 {
 
-    [SerializeField] private string _listenIp = "0.0.0.0";
-    [SerializeField] private string _connectIp = "127.0.0.1";
-    [SerializeField] private ushort _port = 7979;
+    [SerializeField] private string listenIp = "0.0.0.0";
+    [SerializeField] private string connectIp = "127.0.0.1";
+    [SerializeField] private ushort port = 7979;
 
     public static World serverWorld = null;
     public static World clientWorld = null;
@@ -29,9 +29,7 @@ public class ConnectionManager : MonoBehaviour
     {
         if (Application.platform == RuntimePlatform.WindowsServer || Application.platform == RuntimePlatform.LinuxServer || Application.platform == RuntimePlatform.OSXServer)
         {
-            _role = Role.Server;
-
-            StartCoroutine(Connect());
+            StartServer();
         }
 
         /*
@@ -56,30 +54,50 @@ public class ConnectionManager : MonoBehaviour
     {
         Debug.Log("Starting Private");
 
-        _listenIp = "127.0.0.1";
-        _connectIp = "127.0.0.1";
-        _port = 7979;
+        listenIp = "127.0.0.1";
+        connectIp = "127.0.0.1";
+        port = 7979;
 
         _role = Role.ServerClient;
         StartCoroutine(Connect());
 
     }
 
-    public void StartServer(string _ip, string _port)
+    public void StartServer()
     {
         Debug.Log("Starting Server:");
+
+
+        listenIp = "0.0.0.0";
+        connectIp = "127.0.0.1";
+        port = 7979;
+
+        _role = Role.Server;
+        StartCoroutine(Connect());
     }
 
-    public void startConnction(string _ip, string temp)
+    public void StartConnction(string _ip, ushort _port)
     {
-        Debug.Log($"Connecting to {_ip}:{temp}");
+        Debug.Log($"Connecting to {_ip}:{_port}");
 
   
-        _listenIp = _ip;
-        _connectIp = _ip;
-        _port = 7979;
+        listenIp = _ip;
+        connectIp = _ip;
+        port = 7979;
 
         _role = Role.Client;
+        StartCoroutine(Connect());
+    }
+
+    public void StartHosting(ushort _port)
+    {
+        Debug.Log($"Starting host on port: {_port}");
+
+        listenIp = "0.0.0.0";
+        connectIp = "127.0.0.1";
+        port = _port;
+
+        _role = Role.ServerClient;
         StartCoroutine(Connect());
     }
 
@@ -149,7 +167,7 @@ public class ConnectionManager : MonoBehaviour
             }
 
             using var query = serverWorld.EntityManager.CreateEntityQuery(ComponentType.ReadWrite<NetworkStreamDriver>());
-            query.GetSingletonRW<NetworkStreamDriver>().ValueRW.Listen(NetworkEndpoint.Parse(_listenIp, _port));
+            query.GetSingletonRW<NetworkStreamDriver>().ValueRW.Listen(NetworkEndpoint.Parse(listenIp, port));
         }
 
         if (clientWorld != null)
@@ -178,7 +196,7 @@ public class ConnectionManager : MonoBehaviour
 
 
             using var query = clientWorld.EntityManager.CreateEntityQuery(ComponentType.ReadWrite<NetworkStreamDriver>());
-            query.GetSingletonRW<NetworkStreamDriver>().ValueRW.Connect(clientWorld.EntityManager, NetworkEndpoint.Parse(_connectIp, _port));
+            query.GetSingletonRW<NetworkStreamDriver>().ValueRW.Connect(clientWorld.EntityManager, NetworkEndpoint.Parse(connectIp, port));
         }
 
         Debug.Log($"Role: {_role}");

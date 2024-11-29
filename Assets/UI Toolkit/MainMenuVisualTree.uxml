@@ -6,7 +6,7 @@
         </engine:Label>
         <engine:VisualElement name="MenuContainer" style="flex-grow: 1;">
             <engine:VisualElement name="ModeMenu" enabled="true" class="centerMenu">
-                <engine:Button text="Host" name="hostButton" enabled="false" class="button" />
+                <engine:Button text="Host" name="hostButton" enabled="true" class="button" />
                 <engine:Button text="Join" name="joinButton" enabled="true" class="button" />
                 <engine:Button text="Private&#10;" name="privateButton" enabled="true" class="button" />
             </engine:VisualElement>

@@ -58,12 +58,6 @@ public class MainMenuUI : MonoBehaviour
         if (exitButton != null) exitButton.clicked -= OnExitPressed;
     }
 
-    private void OnHostPressed()
-    {
-        Debug.Log("Host Button Pressed");
-        // Your logic for hosting a game
-    }
-
     private void OnJoinPressed()
     {
         Debug.Log("Join Button Pressed");
@@ -130,6 +124,65 @@ public class MainMenuUI : MonoBehaviour
         parent.Add(joinMenu);
     }
 
+    private void OnHostPressed()
+    {
+        Debug.Log("Host Button Pressed");
+
+        // Hide the main menu container
+        var mainMenu = _document.rootVisualElement.Q<VisualElement>("ModeMenu");
+        if (mainMenu != null)
+        {
+            mainMenu.style.display = DisplayStyle.None;
+        }
+        else
+        {
+            Debug.LogError("MainMenu VisualElement not found. Ensure it has the correct name.");
+            return;
+        }
+
+        // Locate or create the parent for the new menu
+        var parent = _document.rootVisualElement.Q<VisualElement>("MenuContainer");
+        if (parent == null)
+        {
+            Debug.LogWarning("MenuContainer not found. Creating a new container.");
+
+            // Dynamically create a new parent container
+            parent = new VisualElement { name = "MenuContainer" };
+            parent.style.flexDirection = FlexDirection.Column;
+            _document.rootVisualElement.Add(parent);
+        }
+
+        // Create a new menu container for hosting
+        var hostMenu = new VisualElement();
+        hostMenu.name = "HostMenu";
+        hostMenu.AddToClassList("centerMenu");
+
+        // Create an input field for the port number
+        var portField = new TextField("Listening Port:");
+        portField.name = "hostPortField";
+        portField.AddToClassList("inputField");
+        hostMenu.Add(portField);
+
+        // Create buttons
+        var startButton = new Button(() => OnStartHostPressed(portField.text))
+        {
+            text = "Start"
+        };
+        startButton.AddToClassList("button");
+        hostMenu.Add(startButton);
+
+        var backButton = new Button(() => OnBackPressed(mainMenu, hostMenu))
+        {
+            text = "Back"
+        };
+        backButton.AddToClassList("button");
+        hostMenu.Add(backButton);
+
+        // Add the new menu to the parent container
+        parent.Add(hostMenu);
+    }
+
+
 
     private void OnPrivatePressed()
     {
@@ -173,12 +226,35 @@ public class MainMenuUI : MonoBehaviour
             return;
         }
 
+        // Need to convert string port to ushort
+
         // Call StartPrivate on the ConnectionManager
-        connectionManager.startConnction(ip, port);
+        connectionManager.StartConnction(ip, 7979);
 
         // Hide the UIDocument by disabling it
         _document.gameObject.SetActive(false);
     }
+
+    private void OnStartHostPressed(string port)
+    {
+        // Add connection logic here
+        Debug.Log("Connect Start Host");
+
+        if (connectionManager == null)
+        {
+            Debug.LogError("ConnectionManager reference is null. Cannot start private session.");
+            return;
+        }
+
+        // Need to convert string port to ushort
+
+        // Call StartPrivate on the ConnectionManager
+        connectionManager.StartHosting(7979);
+
+        // Hide the UIDocument by disabling it
+        _document.gameObject.SetActive(false);
+    }
+
 
     private void OnBackPressed(VisualElement mainMenu, VisualElement joinMenu)
     {
