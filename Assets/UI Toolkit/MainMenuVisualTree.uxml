@@ -4,10 +4,12 @@
         <engine:Label text="Main Menu" class="header" style="-unity-text-align: upper-center;">
             <engine:Button text="Exit&#10;" name="exitButton" enabled="true" class="button" style="align-self: flex-end;" />
         </engine:Label>
-        <engine:VisualElement name="ModeMenu" enabled="true" class="centerMenu">
-            <engine:Button text="Host" name="hostButton" enabled="false" class="button" />
-            <engine:Button text="Join" name="joinButton" enabled="false" class="button" />
-            <engine:Button text="Private&#10;" name="privateButton" enabled="true" class="button" />
+        <engine:VisualElement name="MenuContainer" style="flex-grow: 1;">
+            <engine:VisualElement name="ModeMenu" enabled="true" class="centerMenu">
+                <engine:Button text="Host" name="hostButton" enabled="false" class="button" />
+                <engine:Button text="Join" name="joinButton" enabled="true" class="button" />
+                <engine:Button text="Private&#10;" name="privateButton" enabled="true" class="button" />
+            </engine:VisualElement>
         </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

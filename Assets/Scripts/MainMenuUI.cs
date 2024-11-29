@@ -67,8 +67,69 @@ public class MainMenuUI : MonoBehaviour
     private void OnJoinPressed()
     {
         Debug.Log("Join Button Pressed");
-        // Your logic for joining a game
+
+        
+
+        // Hide the main menu container
+        var mainMenu = _document.rootVisualElement.Q<VisualElement>("ModeMenu");
+        if (mainMenu != null)
+        {
+            mainMenu.style.display = DisplayStyle.None;
+        }
+        else
+        {
+            Debug.LogError("MainMenu VisualElement not found. Ensure it has the correct name.");
+            return;
+        }
+
+
+        // Locate or create the parent for the new menu
+        var parent = _document.rootVisualElement.Q<VisualElement>("MenuContainer");
+        if (parent == null)
+        {
+            Debug.LogWarning("MenuContainer not found. Creating a new container.");
+
+            // Dynamically create a new parent container
+            parent = new VisualElement { name = "MenuContainer" };
+            parent.style.flexDirection = FlexDirection.Column;
+            _document.rootVisualElement.Add(parent);
+        }
+
+        // Create a new menu container
+        var joinMenu = new VisualElement();
+        joinMenu.name = "JoinMenu";
+        joinMenu.AddToClassList("centerMenu");
+
+        // Create input fields
+        var ipField = new TextField("IP Address:");
+        ipField.name = "ipField";
+        ipField.AddToClassList("inputField");
+        joinMenu.Add(ipField);
+
+        var portField = new TextField("Port Number:");
+        portField.name = "portField";
+        portField.AddToClassList("inputField");
+        joinMenu.Add(portField);
+
+        // Create buttons
+        var connectButton = new Button(() => OnConnectPressed(ipField.text, portField.text))
+        {
+            text = "Connect"
+        };
+        connectButton.AddToClassList("button");
+        joinMenu.Add(connectButton);
+
+        var backButton = new Button(() => OnBackPressed(mainMenu, joinMenu))
+        {
+            text = "Back"
+        };
+        backButton.AddToClassList("button");
+        joinMenu.Add(backButton);
+
+        // Add the new menu to locator parent
+        parent.Add(joinMenu);
     }
+
 
     private void OnPrivatePressed()
     {
@@ -97,5 +158,36 @@ public class MainMenuUI : MonoBehaviour
         // Quit the application in a build
         Application.Quit();
 #endif
+    }
+
+    private void OnConnectPressed(string ip, string port)
+    {
+
+        // Add connection logic here
+        
+        Debug.Log("Connect Pressed");
+
+        if (connectionManager == null)
+        {
+            Debug.LogError("ConnectionManager reference is null. Cannot start private session.");
+            return;
+        }
+
+        // Call StartPrivate on the ConnectionManager
+        connectionManager.startConnction(ip, port);
+
+        // Hide the UIDocument by disabling it
+        _document.gameObject.SetActive(false);
+    }
+
+    private void OnBackPressed(VisualElement mainMenu, VisualElement joinMenu)
+    {
+        Debug.Log("Returning to Main Menu");
+
+        // Show the main menu
+        mainMenu.style.display = DisplayStyle.Flex;
+
+        // Remove the join menu
+        joinMenu.RemoveFromHierarchy();
     }
 }

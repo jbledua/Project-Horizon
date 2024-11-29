@@ -17,26 +17,14 @@
     margin-bottom: 50px;
 }
 
-.input {
-    width: 220px;
-    height: 60px;
-    align-self: center;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-    font-size: 20px;
-    margin-top: 100px;
-}
-
 .navBarButton {
     width: 200px;
     align-self: flex-end;
 }
 
 .centerMenu {
-    width: 500px;
-    background-color: rgba(0, 0, 0, 0.88);
+    width: 800px;
+    background-color: rgba(0, 0, 0, 0.87);
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
@@ -46,4 +34,19 @@
     margin-right: 0;
     margin-bottom: 200px;
     align-self: center;
+}
+
+.input {
+    width: 300px;
+    height: 60px;
+    align-self: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    font-size: 20px;
+    margin-top: 50px;
+    margin-right: 0;
+    margin-bottom: 50px;
+    color: rgb(255, 255, 255);
 }

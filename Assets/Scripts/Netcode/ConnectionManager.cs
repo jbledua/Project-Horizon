@@ -27,6 +27,14 @@ public class ConnectionManager : MonoBehaviour
 
     private void Start()
     {
+        if (Application.platform == RuntimePlatform.WindowsServer || Application.platform == RuntimePlatform.LinuxServer || Application.platform == RuntimePlatform.OSXServer)
+        {
+            _role = Role.Server;
+
+            StartCoroutine(Connect());
+        }
+
+        /*
         // Determine Roles
         if (Application.isEditor)
         {
@@ -41,11 +49,20 @@ public class ConnectionManager : MonoBehaviour
             _role = Role.Client;
         }
         StartCoroutine(Connect());
+        //*/
     }
 
     public void StartPrivate()
     {
         Debug.Log("Starting Private");
+
+        _listenIp = "127.0.0.1";
+        _connectIp = "127.0.0.1";
+        _port = 7979;
+
+        _role = Role.ServerClient;
+        StartCoroutine(Connect());
+
     }
 
     public void StartServer(string _ip, string _port)
@@ -53,9 +70,17 @@ public class ConnectionManager : MonoBehaviour
         Debug.Log("Starting Server:");
     }
 
-    public void startConnction(string _ip, string _port)
+    public void startConnction(string _ip, string temp)
     {
-        Debug.Log("Starting Connction:");
+        Debug.Log($"Connecting to {_ip}:{temp}");
+
+  
+        _listenIp = _ip;
+        _connectIp = _ip;
+        _port = 7979;
+
+        _role = Role.Client;
+        StartCoroutine(Connect());
     }
 
     private IEnumerator Connect()
