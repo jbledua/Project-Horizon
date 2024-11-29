@@ -14,7 +14,7 @@ public struct ServerMessageRpcCommand : IRpcCommand
 
 public struct InitializedClient : IComponentData
 {
-
+    
 }
 
 [WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
@@ -36,6 +36,7 @@ public partial class ServerSystem : SystemBase
             commandBuffer.DestroyEntity(entity);
         }
 
+        // Handle Shooting Requests
         foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<SpawnUnitRpcCommand>>().WithEntityAccess())
         {
             PrefabsData prefabs;
@@ -64,7 +65,7 @@ public partial class ServerSystem : SystemBase
             }
         }
 
-
+        // Handle Player Joining
         foreach (var (id, entity) in SystemAPI.Query<RefRO<NetworkId>>().WithNone<InitializedClient>().WithEntityAccess())
         {
             commandBuffer.AddComponent<InitializedClient>(entity);
@@ -89,6 +90,9 @@ public partial class ServerSystem : SystemBase
                 { 
                     Value = player
                 });
+
+                // 
+                Debug.Log("New Player joined");
             }
         }
         commandBuffer.Playback(EntityManager);
