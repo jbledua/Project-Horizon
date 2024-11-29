@@ -43,6 +43,21 @@ public class ConnectionManager : MonoBehaviour
         StartCoroutine(Connect());
     }
 
+    public void StartPrivate()
+    {
+        Debug.Log("Starting Private");
+    }
+
+    public void StartServer(string _ip, string _port)
+    {
+        Debug.Log("Starting Server:");
+    }
+
+    public void startConnction(string _ip, string _port)
+    {
+        Debug.Log("Starting Connction:");
+    }
+
     private IEnumerator Connect()
     {
         // Create Server World
