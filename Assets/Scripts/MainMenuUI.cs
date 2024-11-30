@@ -12,6 +12,9 @@ public class MainMenuUI : MonoBehaviour
 
     private ConnectionManager connectionManager; // Reference to the ConnectionManager
 
+    [SerializeField]
+    private GameObject mapGenerator;
+
     [System.Obsolete]
     private void OnEnable()
     {
@@ -197,6 +200,8 @@ public class MainMenuUI : MonoBehaviour
         // Call StartPrivate on the ConnectionManager
         connectionManager.StartPrivate();
 
+        if (mapGenerator != null) mapGenerator.SetActive(true);
+
         // Hide the UIDocument by disabling it
         _document.gameObject.SetActive(false);
     }
@@ -233,6 +238,8 @@ public class MainMenuUI : MonoBehaviour
         // Call StartConnection on the ConnectionManager
         connectionManager.StartConnection(ip, parsedPort);
 
+        if (mapGenerator != null) mapGenerator.SetActive(true);
+
         // Hide the UIDocument by disabling it
         _document.gameObject.SetActive(false);
     }
@@ -258,6 +265,8 @@ public class MainMenuUI : MonoBehaviour
 
         // Call StartPrivate on the ConnectionManager
         connectionManager.StartHosting(parsedPort);
+
+        if (mapGenerator != null) mapGenerator.SetActive(true);
 
         // Hide the UIDocument by disabling it
         _document.gameObject.SetActive(false);
