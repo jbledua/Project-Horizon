@@ -76,10 +76,8 @@ public partial class ServerSystem : SystemBase
                 commandBuffer.SetComponent(player, new LocalTransform
                 {
                     Position = new float3(UnityEngine.Random.Range(-10,10),0, UnityEngine.Random.Range(-10, 10)),
-                    //Position = new float3(UnityEngine.Random.Range(-10, 10), 0, UnityEngine.Random.Range(-10, 10)),
-                    //Rotation = quaternion.identity,
                     Rotation = Quaternion.Euler(-90f, 0f, 0f),
-                Scale = 0.01f
+                Scale = 0.1f
                 });
 
                 commandBuffer.SetComponent(player, new GhostOwner()

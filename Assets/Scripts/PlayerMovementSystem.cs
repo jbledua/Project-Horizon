@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -8,10 +7,8 @@ using UnityEngine;
 using Unity.Mathematics;
 using Unity.Jobs;
 
-//[BurstCompile]
 public partial struct PlayerMovementSystem : ISystem
 {
-    //[BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         var builder = new EntityQueryBuilder(Allocator.Temp);
@@ -19,7 +16,6 @@ public partial struct PlayerMovementSystem : ISystem
         state.RequireAnyForUpdate(state.GetEntityQuery(builder));
     }
 
-    //[BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var job = new PlayerMovementJob
@@ -30,18 +26,21 @@ public partial struct PlayerMovementSystem : ISystem
     }
 }
 
-//[BurstCompile]
 public partial struct PlayerMovementJob : IJobEntity
 {
     public float deltaTime;
 
-    public void Execute(PlayerData player, PlayerInputData input, ref LocalTransform transform)
+    public void Execute(ref PlayerData player, in PlayerInputData input, ref LocalTransform transform)
     {
-        // Calculate movement vector
-        float3 movement = new float3(input.move.x, 0, input.move.y) * player.speed * deltaTime;
+        // Calculate movement vector (X, Z plane only)
+        float3 movement = new float3(input.move.x, 0f, input.move.y) * player.speed * deltaTime;
 
-        // Update position
-        transform.Position = transform.Translate(movement).Position;
+        // Update position (maintaining flight height on Y-axis)
+        transform.Position = new float3(
+            transform.Position.x + movement.x,
+            player.flightHeight, // Always set to flight height
+            transform.Position.z + movement.z
+        );
 
         // If there's input, calculate the forward direction and update rotation
         if (!math.all(movement == float3.zero))
@@ -60,4 +59,3 @@ public partial struct PlayerMovementJob : IJobEntity
         }
     }
 }
-

@@ -9,9 +9,7 @@ using Unity.NetCode;
 public partial class CameraFollowSystem : SystemBase
 {
     private Transform _mainCamera;
-    private float3 _cameraOffset = new float3(0f, 10f, 0f); // Fixed height and no rotation
-    private float3 _cameraRoation = new float3(90f, 0f, 0f); // Fixed height and no rotation
-    private float _lagSpeed = 2f; // Camera lag speed
+    private float3 _cameraRotation = new float3(90f, 0f, 0f); // Fixed rotation
 
     protected override void OnStartRunning()
     {
@@ -50,18 +48,20 @@ public partial class CameraFollowSystem : SystemBase
         // Query entities with PlayerData and GhostOwnerIsLocal
         foreach (var (transform, player, _) in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PlayerData>, RefRO<GhostOwnerIsLocal>>())
         {
-            // Get the player's position
+            // Get the player's position and camera settings
             float3 targetPosition = transform.ValueRO.Position;
+            float3 cameraOffset = player.ValueRO.cameraOffset;
+            float lagSpeed = player.ValueRO.cameraLagSpeed;
 
-            // Calculate the desired camera position with lag
-            float3 desiredPosition = targetPosition + _cameraOffset;
+            // Calculate the desired camera position with offset
+            float3 desiredPosition = targetPosition + cameraOffset;
 
             // Smoothly interpolate the camera's position for the lag effect
-            float3 smoothedPosition = math.lerp(_mainCamera.position, desiredPosition, SystemAPI.Time.DeltaTime * _lagSpeed);
+            float3 smoothedPosition = math.lerp(_mainCamera.position, desiredPosition, SystemAPI.Time.DeltaTime * lagSpeed);
 
             // Apply the smoothed position to the camera
-            _mainCamera.position = new Vector3(smoothedPosition.x, _cameraOffset.y, smoothedPosition.z);
-            _mainCamera.transform.eulerAngles = new Vector3(_cameraRoation.x, _cameraRoation.y, _cameraRoation.z);
+            _mainCamera.position = new Vector3(smoothedPosition.x, smoothedPosition.y, smoothedPosition.z);
+            _mainCamera.transform.eulerAngles = new Vector3(_cameraRotation.x, _cameraRotation.y, _cameraRotation.z);
         }
     }
 }
