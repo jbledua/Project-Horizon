@@ -48,7 +48,7 @@ public partial struct PlayerMovementJob : IJobEntity
             float3 forward = math.normalize(movement); // Normalize the movement vector
 
             // Adjust the forward direction by rotating -90 degrees on the X-axis
-            quaternion baseRotation = quaternion.Euler(math.radians(-90f), 0f, 0f); // -90 degrees on X-axis
+            quaternion baseRotation = quaternion.Euler(math.radians(0f), 0f, 0f);
             quaternion targetRotation = quaternion.LookRotationSafe(forward, math.up()); // Calculate target rotation
 
             // Combine the target rotation with the base adjustment

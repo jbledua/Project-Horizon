@@ -10,7 +10,7 @@ public struct ClientMessageRpcCommand : IRpcCommand
     public FixedString64Bytes message;
 }
 
-public struct SpawnUnitRpcCommand : IRpcCommand
+public struct ShootMissileRpcCommand : IRpcCommand
 {
 
 }
@@ -66,7 +66,7 @@ public partial class ClientSystem : SystemBase
         {
             return;
         }
-        world.EntityManager.CreateEntity(typeof(SendRpcCommandRequest), typeof(SpawnUnitRpcCommand));
+        world.EntityManager.CreateEntity(typeof(SendRpcCommandRequest), typeof(ShootMissileRpcCommand));
     }
 
 }

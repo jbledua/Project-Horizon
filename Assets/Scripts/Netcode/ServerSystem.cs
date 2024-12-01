@@ -37,33 +37,51 @@ public partial class ServerSystem : SystemBase
         }
 
         // Handle Shooting Requests
-        foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<SpawnUnitRpcCommand>>().WithEntityAccess())
+        foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<ShootMissileRpcCommand>>().WithEntityAccess())
         {
             PrefabsData prefabs;
             if (SystemAPI.TryGetSingleton<PrefabsData>(out prefabs) && prefabs.missile != null)
             {
-                Entity missile = commandBuffer.Instantiate(prefabs.missile);
-                commandBuffer.SetComponent(missile, new LocalTransform()
+                // Find the player entity and its transform
+                foreach (var (playerTransform, playerData, _) in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PlayerData>, RefRO<GhostOwnerIsLocal>>())
                 {
-                    Position = new float3(UnityEngine.Random.Range(-10f, 10f), 0, UnityEngine.Random.Range(-10f, 10f)),
-                    Rotation = quaternion.identity,
-                    Scale = 0.25f
-                });
+                    // Instantiate the missile
+                    Entity missile = commandBuffer.Instantiate(prefabs.missile);
 
-                var networkId = _clients[request.ValueRO.SourceConnection];
-                commandBuffer.SetComponent(missile, new GhostOwner()
-                {
-                    NetworkId = networkId.Value
-                });
+                    // Calculate the spawn position in front of the player
+                    float3 spawnPosition = playerTransform.ValueRO.Position +
+                                           math.forward(playerTransform.ValueRO.Rotation) * 5f; // Adjust 1.5f for desired distance
 
-                // Link 
-                commandBuffer.AppendToBuffer(request.ValueRO.SourceConnection, new LinkedEntityGroup()
-                {
-                    Value = missile
-                });
-                commandBuffer.DestroyEntity(entity);
+                    // Set the missile's transform
+                    commandBuffer.SetComponent(missile, new LocalTransform()
+                    {
+                        Position = spawnPosition,
+                        Rotation = playerTransform.ValueRO.Rotation, // Match player's rotation
+                        Scale = 1f
+                    });
+
+                    // Assign ownership
+                    var networkId = _clients[request.ValueRO.SourceConnection];
+                    commandBuffer.SetComponent(missile, new GhostOwner()
+                    {
+                        NetworkId = networkId.Value
+                    });
+
+                    // Link the missile entity
+                    commandBuffer.AppendToBuffer(request.ValueRO.SourceConnection, new LinkedEntityGroup()
+                    {
+                        Value = missile
+                    });
+
+                    // Destroy the request entity
+                    commandBuffer.DestroyEntity(entity);
+
+                    // Exit the loop after finding the player
+                    break;
+                }
             }
         }
+
 
         // Handle Player Joining
         foreach (var (id, entity) in SystemAPI.Query<RefRO<NetworkId>>().WithNone<InitializedClient>().WithEntityAccess())
@@ -76,7 +94,7 @@ public partial class ServerSystem : SystemBase
                 commandBuffer.SetComponent(player, new LocalTransform
                 {
                     Position = new float3(UnityEngine.Random.Range(-10,10),0, UnityEngine.Random.Range(-10, 10)),
-                    Rotation = Quaternion.Euler(-90f, 0f, 0f),
+                    Rotation = Quaternion.Euler(0f, 0f, 0f),
                 Scale = 0.1f
                 });
 

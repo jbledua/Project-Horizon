@@ -2315,6 +2315,7 @@ GameObject:
   - component: {fileID: 7050387483827921067}
   - component: {fileID: 8678024500883360562}
   - component: {fileID: 1018865397098085625}
+  - component: {fileID: 1428922473117498804}
   m_Layer: 0
   m_Name: Missile
   m_TagString: Untagged
@@ -2371,7 +2372,7 @@ MonoBehaviour:
   SupportedGhostModes: 3
   OptimizationMode: 0
   Importance: 1
-  prefabId: 
+  prefabId: 5685c1bcb58875f4fbb2546354ad067d
   HasOwner: 1
   SupportAutoCommandTarget: 1
   TrackInterpolationDelay: 0
@@ -2379,6 +2380,20 @@ MonoBehaviour:
   UsePreSerialization: 0
   RollbackPredictedSpawnedGhostState: 0
   RollbackPredictionOnStructuralChanges: 1
+--- !u!114 &1428922473117498804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4545019324720715295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f691785b671116643b7579350999aa9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Speed: 80
+  LifeTime: 1
 --- !u!1 &4566411637513500786
 GameObject:
   m_ObjectHideFlags: 0
