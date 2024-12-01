@@ -17,6 +17,11 @@ public struct InitializedClient : IComponentData
     
 }
 
+public struct RespawnPlayerRpcCommand : IRpcCommand
+{
+    
+}
+
 [WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
 public partial class ServerSystem : SystemBase
 {
@@ -30,13 +35,69 @@ public partial class ServerSystem : SystemBase
     {
         _clients.Update(this);
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
+
+        // Handle Player Joining
+        foreach (var (id, entity) in SystemAPI.Query<RefRO<NetworkId>>().WithNone<InitializedClient>().WithEntityAccess())
+        {
+            commandBuffer.AddComponent<InitializedClient>(entity);
+            PrefabsData prefabManager = SystemAPI.GetSingleton<PrefabsData>();
+            if (prefabManager.player != null)
+            {
+                Entity player = commandBuffer.Instantiate(prefabManager.player);
+                commandBuffer.SetComponent(player, new LocalTransform
+                {
+                    Position = new float3(UnityEngine.Random.Range(-10, 10), 0, UnityEngine.Random.Range(-10, 10)),
+                    Rotation = Quaternion.Euler(0f, 0f, 0f),
+                    Scale = 0.1f
+                });
+
+                commandBuffer.SetComponent(player, new GhostOwner()
+                {
+                    NetworkId = id.ValueRO.Value
+                });
+                commandBuffer.AppendToBuffer(entity, new LinkedEntityGroup()
+                {
+                    Value = player
+                });
+
+                Debug.Log("Player " + id.ValueRO.Value + " joined");
+            }
+
+        } // End foreach Joining
+
+        // Handle Player Respawn 
+        foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<RespawnPlayerRpcCommand>>().WithEntityAccess())
+        {
+           
+            Debug.Log("Respaning player (Not Working Yet)");
+
+
+            commandBuffer.DestroyEntity(entity);
+
+
+            //commandBuffer.AddComponent<InitializedClient>(entity);
+            //PrefabsData prefabManager = SystemAPI.GetSingleton<PrefabsData>();
+            //if (prefabManager.player != null)
+            //{
+            //    commandBuffer.SetComponent(player, new LocalTransform
+            //    {
+            //        Position = new float3(UnityEngine.Random.Range(-10, 10), 0, UnityEngine.Random.Range(-10, 10)),
+            //        Rotation = Quaternion.Euler(0f, 0f, 0f),
+            //        Scale = 0.1f
+            //    });
+
+            //    Debug.Log("Respaning player " + id.ValueRO.Value);
+            //}
+
+        } // End foreach Respawn
+
+        // Handle Client Messages
         foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<ClientMessageRpcCommand>>().WithEntityAccess())
         {
             Debug.Log(command.ValueRO.message + " from client index " + request.ValueRO.SourceConnection.Index + " version " + request.ValueRO.SourceConnection.Version);
             commandBuffer.DestroyEntity(entity);
-        }
+        } // End foreach Messages
 
-        // Handle Shooting Requests
         // Handle Shooting Requests
         foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<ShootMissileRpcCommand>>().WithEntityAccess())
         {
@@ -91,39 +152,14 @@ public partial class ServerSystem : SystemBase
                     break;
                 }
             }
-        }
+        } // End foreach Shooting
 
-        // Handle Player Joining
-        foreach (var (id, entity) in SystemAPI.Query<RefRO<NetworkId>>().WithNone<InitializedClient>().WithEntityAccess())
-        {
-            commandBuffer.AddComponent<InitializedClient>(entity);
-            PrefabsData prefabManager = SystemAPI.GetSingleton<PrefabsData>();
-            if (prefabManager.player != null)
-            {
-                Entity player = commandBuffer.Instantiate(prefabManager.player);
-                commandBuffer.SetComponent(player, new LocalTransform
-                {
-                    Position = new float3(UnityEngine.Random.Range(-10,10),0, UnityEngine.Random.Range(-10, 10)),
-                    Rotation = Quaternion.Euler(0f, 0f, 0f),
-                Scale = 0.1f
-                });
 
-                commandBuffer.SetComponent(player, new GhostOwner()
-                {
-                    NetworkId = id.ValueRO.Value
-                });
-                commandBuffer.AppendToBuffer(entity, new LinkedEntityGroup() 
-                { 
-                    Value = player
-                });
-
-                // 
-                Debug.Log("New Player joined");
-            }
-        }
         commandBuffer.Playback(EntityManager);
         commandBuffer.Dispose();
     }
+
+   
 
     public void SendMessageRpc(string text, World world, Entity target = default)
     {

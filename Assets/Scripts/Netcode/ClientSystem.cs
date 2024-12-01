@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.NetCode;
 using UnityEngine;
+using Unity.Mathematics;
 
 public struct ClientMessageRpcCommand : IRpcCommand
 {
@@ -18,10 +19,15 @@ public struct ShootMissileRpcCommand : IRpcCommand
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
 public partial class ClientSystem : SystemBase
 {
+    private PlayerMovementActions playerInput;
+
+
 
     protected override void OnCreate()
     {
         RequireForUpdate<NetworkId>();
+        playerInput = new PlayerMovementActions();
+        playerInput.Enable();
     }
 
     protected override void OnUpdate()
@@ -32,17 +38,36 @@ public partial class ClientSystem : SystemBase
             Debug.Log(command.ValueRO.message);
             commandBuffer.DestroyEntity(entity);
         }
-        if (Input.GetKeyDown(KeyCode.T))
+
+        if (playerInput.Player.Taunt.WasPressedThisFrame())
         {
-            SendMessageRpc("Hello", ConnectionManager.clientWorld);
+            // Retrieve the player's position
+            float3 playerPosition = float3.zero;
+            //foreach (var (transform, player, _) in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PlayerData>, RefRO<GhostOwnerIsLocal>>())
+            //{
+            //    //float3 targetPosition = transform.ValueRO.Position;
+            //    break; // Assuming only one local player entity
+            //}
+
+            // Format the message with the player's position
+            string message = $"I am at {playerPosition.x:F2}, {playerPosition.y:F2}, {playerPosition.z:F2} come and get me!";
+
+            // Send the message via RPC
+            SendMessageRpc(message, ConnectionManager.clientWorld);
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+
+        if (playerInput.Player.Shoot.WasPressedThisFrame())
         {
-            SpawnUnitRPC(ConnectionManager.clientWorld);
+             
+            ShootMissileRPC(ConnectionManager.clientWorld);
         }
 
- 
+        if (playerInput.Player.Respawn.WasPressedThisFrame())
+        {
+            RespawnPlayerRPC(ConnectionManager.clientWorld);
+        }
+
         commandBuffer.Playback(EntityManager);
         commandBuffer.Dispose();
     }
@@ -60,13 +85,22 @@ public partial class ClientSystem : SystemBase
         });
     }
 
-    public void SpawnUnitRPC(World world)
+    public void ShootMissileRPC(World world)
     {
         if (world == null || world.IsCreated == false)
         {
             return;
         }
         world.EntityManager.CreateEntity(typeof(SendRpcCommandRequest), typeof(ShootMissileRpcCommand));
+    }
+
+    public void RespawnPlayerRPC(World world)
+    {
+        if (world == null || world.IsCreated == false)
+        {
+            return;
+        }
+        world.EntityManager.CreateEntity(typeof(SendRpcCommandRequest), typeof(RespawnPlayerRpcCommand));
     }
 
 }
