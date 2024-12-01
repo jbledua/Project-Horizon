@@ -37,20 +37,31 @@ public partial class ServerSystem : SystemBase
         }
 
         // Handle Shooting Requests
+        // Handle Shooting Requests
         foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<ShootMissileRpcCommand>>().WithEntityAccess())
         {
             PrefabsData prefabs;
             if (SystemAPI.TryGetSingleton<PrefabsData>(out prefabs) && prefabs.missile != null)
             {
                 // Find the player entity and its transform
-                foreach (var (playerTransform, playerData, _) in SystemAPI.Query<RefRO<LocalTransform>, RefRO<PlayerData>, RefRO<GhostOwnerIsLocal>>())
+                foreach (var (playerTransform, playerData, _) in SystemAPI.Query<RefRO<LocalTransform>, RefRW<PlayerData>, RefRO<GhostOwnerIsLocal>>())
                 {
                     // Instantiate the missile
                     Entity missile = commandBuffer.Instantiate(prefabs.missile);
 
-                    // Calculate the spawn position in front of the player
+                    // Calculate the spawn position
+                    float3 forward = math.forward(playerTransform.ValueRO.Rotation);
+                    float3 up = new float3(0, 1, 0); // World up vector
+                    float3 right = math.normalize(math.cross(up, forward)); // Calculate right direction
+                    float wingOffset = 2.0f; // Adjust for the wing position
+                    float3 wingPositionOffset = playerData.ValueRW.activeWing ? right * wingOffset : -right * wingOffset;
+
                     float3 spawnPosition = playerTransform.ValueRO.Position +
-                                           math.forward(playerTransform.ValueRO.Rotation) * 5f; // Adjust 1.5f for desired distance
+                                           forward * 5f + // Adjust 5f for desired distance
+                                           wingPositionOffset;
+
+                    // Alternate the active wing
+                    playerData.ValueRW.activeWing = !playerData.ValueRW.activeWing;
 
                     // Set the missile's transform
                     commandBuffer.SetComponent(missile, new LocalTransform()
@@ -81,7 +92,6 @@ public partial class ServerSystem : SystemBase
                 }
             }
         }
-
 
         // Handle Player Joining
         foreach (var (id, entity) in SystemAPI.Query<RefRO<NetworkId>>().WithNone<InitializedClient>().WithEntityAccess())

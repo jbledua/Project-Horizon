@@ -142,7 +142,7 @@ MonoBehaviour:
   speed: 50
   cameraOffset: {x: 0, y: 100, z: -10}
   cameraLagSpeed: 5
-  flightHeight: 100
+  flightHeight: 150
 --- !u!54 &6905465464092135911
 Rigidbody:
   m_ObjectHideFlags: 0
