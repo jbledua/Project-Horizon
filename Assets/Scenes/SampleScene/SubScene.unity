@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9509a35e966174d49abd993b9da9ddab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  missile: {fileID: 4545019324720715295, guid: 5685c1bcb58875f4fbb2546354ad067d, type: 3}
+  missile: {fileID: 95319104717137063, guid: 65e6a0c6538deae41aaebb3d076f2666, type: 3}
   player: {fileID: 4794523067743813158, guid: 4ba42ff4a5975ed42ad12669ad93f111, type: 3}
 --- !u!4 &1748023931
 Transform:
