@@ -55,3 +55,11 @@
     background-color: rgba(0, 0, 0, 0.24);
     color: rgb(255, 255, 255);
 }
+
+.logoLabel {
+    width: 500px;
+    margin-top: 200px;
+    background-image: url("project://database/Assets/UI%20Toolkit/Horizon-Logo-Dark.png?fileID=2800000&guid=6cc274d7cca34ff45804ad900ef67c8b&type=3#Horizon-Logo-Dark");
+    height: 500px;
+    align-self: center;
+}

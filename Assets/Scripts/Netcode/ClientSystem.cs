@@ -68,6 +68,12 @@ public partial class ClientSystem : SystemBase
             RespawnPlayerRPC(ConnectionManager.clientWorld);
         }
 
+        if (playerInput.Player.Pause.WasPressedThisFrame())
+        {
+            MainMenuUI.ShowPauseMenu();
+        }
+
+
         commandBuffer.Playback(EntityManager);
         commandBuffer.Dispose();
     }

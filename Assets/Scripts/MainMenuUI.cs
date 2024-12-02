@@ -6,20 +6,27 @@ public class MainMenuUI : MonoBehaviour
     private UIDocument _document;
     private VisualElement parent;
 
-    private Button hostButton;
-    private Button joinButton;
-    private Button privateButton;
+    private VisualElement mainMenu;
+    private VisualElement hostMenu;
+    private VisualElement joinMenu;
+    private VisualElement pauseMenu;
+    private VisualElement gameLogo;
+
     private Button exitButton;
 
-    private ConnectionManager connectionManager; // Reference to the ConnectionManager
+    private ConnectionManager connectionManager;
 
     [SerializeField]
     private GameObject mapGenerator;
 
+    // Static instance for external access
+    private static MainMenuUI instance;
+
     [System.Obsolete]
     private void OnEnable()
     {
-        // Get the UI Document
+        instance = this;
+
         _document = GetComponent<UIDocument>();
         if (_document == null)
         {
@@ -27,209 +34,187 @@ public class MainMenuUI : MonoBehaviour
             return;
         }
 
-        // Find buttons by their name
-        //hostButton = _document.rootVisualElement.Q<Button>("hostButton");
-        //joinButton = _document.rootVisualElement.Q<Button>("joinButton");
-        //privateButton = _document.rootVisualElement.Q<Button>("privateButton");
-        exitButton = _document.rootVisualElement.Q<Button>("exitButton");
-
-        if (exitButton == null )//hostButton == null // || joinButton == null || privateButton == null)
-        {
-            Debug.LogError("One or more buttons are missing in the UI. Check their names in the UI Builder.");
-            return;
-        }
-
-        // Attach callbacks to buttons
-        ///hostButton.clicked += OnHostPressed;
-        ///joinButton.clicked += OnJoinPressed;
-        ///privateButton.clicked += OnPrivatePressed;
-        exitButton.clicked += OnExitPressed;
-
-        // Get the ConnectionManager reference (assuming it's in the same scene)
-        connectionManager = FindObjectOfType<ConnectionManager>();
-        if (connectionManager == null)
-        {
-            Debug.LogError("ConnectionManager not found in the scene. Ensure it's added to the scene.");
-        }
-
-        // Locate or create the parent for the new menu
         parent = _document.rootVisualElement.Q<VisualElement>("MenuContainer");
         if (parent == null)
         {
-            Debug.LogWarning("MenuContainer not found. Creating a new container.");
-
-            // Dynamically create a new parent container
             parent = new VisualElement { name = "MenuContainer" };
             parent.style.flexDirection = FlexDirection.Column;
             _document.rootVisualElement.Add(parent);
         }
-        CreateModeMenu();
+
+        connectionManager = FindObjectOfType<ConnectionManager>();
+        if (connectionManager == null)
+        {
+            Debug.LogError("ConnectionManager not found in the scene.");
+        }
+
+        // Initialize menus and logo
+        gameLogo = CreateGameLogo();
+        mainMenu = CreateMainMenu();
+        hostMenu = CreateHostMenu();
+        joinMenu = CreateJoinMenu();
+        pauseMenu = CreatePauseMenu();
+
+        ShowGameLogo();
     }
 
-    private void OnDisable()
+    private VisualElement CreateGameLogo()
     {
-        // Unregister callbacks only if the buttons are not null
-        if (hostButton != null) hostButton.clicked -= OnHostPressed;
-        if (joinButton != null) joinButton.clicked -= OnJoinPressed;
-        if (privateButton != null) privateButton.clicked -= OnPrivatePressed;
-        if (exitButton != null) exitButton.clicked -= OnExitPressed;
+        //var logo = new VisualElement { name = "GameLogo" };
+        //logo.AddToClassList("centerMenu");
+
+        var logoLabel = new Label("Game Logo");
+        logoLabel.AddToClassList("logoLabel");
+
+        //logo.Add(logoLabel);
+        parent.Add(logoLabel);
+
+        logoLabel.style.display = DisplayStyle.None;
+        return logoLabel;
     }
 
-    private void CreateModeMenu()
+    private VisualElement CreateMainMenu()
     {
-        // Create modeMenu VisualElement
-        var modeMenu = new VisualElement { name = "ModeMenu" };
-        modeMenu.AddToClassList("centerMenu");
+        var menu = new VisualElement { name = "MainMenu" };
+        menu.AddToClassList("centerMenu");
 
-        // Create buttons
-        var hostButton = new Button(() => OnHostPressed())
-        {
-            text = "Host"
-        };
-        var joinButton = new Button(() => OnJoinPressed())
-        {
-            text = "Join"
-        };
-        var privateButton = new Button(() => OnPrivatePressed())
-        {
-            text = "Private"
-        };
+        var hostButton = new Button(OnHostPressed) { text = "Host" };
+        var joinButton = new Button(OnJoinPressed) { text = "Join" };
+        var privateButton = new Button(OnPrivatePressed) { text = "Private" };
+        exitButton = new Button(OnExitPressed) { text = "Exit" };
 
         hostButton.AddToClassList("button");
         joinButton.AddToClassList("button");
         privateButton.AddToClassList("button");
+        exitButton.AddToClassList("button");
 
-        // Add buttons to modeMenu
-        modeMenu.Add(hostButton);
-        modeMenu.Add(joinButton);
-        modeMenu.Add(privateButton);
+        menu.Add(hostButton);
+        menu.Add(joinButton);
+        menu.Add(privateButton);
+        menu.Add(exitButton);
 
-        // Add modeMenu to the root VisualElement
-        parent.Add(modeMenu);
+        parent.Add(menu);
+        menu.style.display = DisplayStyle.None;
+        return menu;
     }
-    private void OnJoinPressed()
+
+    private VisualElement CreateHostMenu()
     {
-        Debug.Log("Join Button Pressed");
+        var menu = new VisualElement { name = "HostMenu" };
+        menu.AddToClassList("centerMenu");
 
-        
+        var portField = new TextField("Listening Port:") { name = "hostPortField" };
+        portField.AddToClassList("input");
 
-        // Hide the main menu container
-        var mainMenu = _document.rootVisualElement.Q<VisualElement>("ModeMenu");
-        if (mainMenu != null)
-        {
-            mainMenu.style.display = DisplayStyle.None;
-        }
-        else
-        {
-            Debug.LogError("MainMenu VisualElement not found. Ensure it has the correct name.");
-            return;
-        }
+        var startButton = new Button(() => OnStartHostPressed(portField.text)) { text = "Start" };
+        var backButton = new Button(() => OnBackPressed(menu, mainMenu)) { text = "Back" };
 
-
-        // Locate or create the parent for the new menu
-        
-
-        // Create a new menu container
-        var joinMenu = new VisualElement();
-        joinMenu.name = "JoinMenu";
-        joinMenu.AddToClassList("centerMenu");
-
-        // Create input fields
-        var ipField = new TextField("IP Address:");
-        ipField.name = "ipField";
-        ipField.AddToClassList("inputField");
-        joinMenu.Add(ipField);
-
-        var portField = new TextField("Port Number:");
-        portField.name = "portField";
-        portField.AddToClassList("inputField");
-        joinMenu.Add(portField);
-
-        // Create buttons
-        var connectButton = new Button(() => OnConnectPressed(ipField.text, portField.text))
-        {
-            text = "Connect"
-        };
-        connectButton.AddToClassList("button");
-        joinMenu.Add(connectButton);
-
-        var backButton = new Button(() => OnBackPressed(mainMenu, joinMenu))
-        {
-            text = "Back"
-        };
+        startButton.AddToClassList("button");
         backButton.AddToClassList("button");
-        joinMenu.Add(backButton);
 
-        // Add the new menu to locator parent
-        parent.Add(joinMenu);
+        menu.Add(portField);
+        menu.Add(startButton);
+        menu.Add(backButton);
+
+        parent.Add(menu);
+        menu.style.display = DisplayStyle.None;
+        return menu;
+    }
+
+    private VisualElement CreateJoinMenu()
+    {
+        var menu = new VisualElement { name = "JoinMenu" };
+        menu.AddToClassList("centerMenu");
+
+        var ipField = new TextField("IP Address:") { name = "ipField" };
+        var portField = new TextField("Port Number:") { name = "portField" };
+
+        var connectButton = new Button(() => OnConnectPressed(ipField.text, portField.text)) { text = "Connect" };
+        var backButton = new Button(() => OnBackPressed(menu, mainMenu)) { text = "Back" };
+
+        ipField.AddToClassList("input");
+        portField.AddToClassList("input");
+        connectButton.AddToClassList("button");
+        backButton.AddToClassList("button");
+
+        menu.Add(ipField);
+        menu.Add(portField);
+        menu.Add(connectButton);
+        menu.Add(backButton);
+
+        parent.Add(menu);
+        menu.style.display = DisplayStyle.None;
+        return menu;
+    }
+
+    private VisualElement CreatePauseMenu()
+    {
+        var menu = new VisualElement { name = "PauseMenu" };
+        menu.AddToClassList("centerMenu");
+
+        var resumeButton = new Button(OnResumePressed) { text = "Resume" };
+        var quitButton = new Button(OnExitPressed) { text = "Quit" };
+
+        resumeButton.AddToClassList("button");
+        quitButton.AddToClassList("button");
+
+        menu.Add(resumeButton);
+        menu.Add(quitButton);
+
+        parent.Add(menu);
+        menu.style.display = DisplayStyle.None;
+        return menu;
+    }
+
+    private void ShowMenu(VisualElement menu)
+    {
+        menu.style.display = DisplayStyle.Flex;
+    }
+
+    private void HideMenu(VisualElement menu)
+    {
+        menu.style.display = DisplayStyle.None;
+    }
+
+    private void ShowGameLogo()
+    {
+        ShowMenu(gameLogo);
+
+        // Schedule hiding the logo and showing the main menu
+        Invoke(nameof(ShowMainMenuAfterLogo), 3f); // Display logo for 3 seconds
+    }
+
+    private void ShowMainMenuAfterLogo()
+    {
+        HideMenu(gameLogo);
+        ShowMainMenu();
+    }
+
+    private void ShowMainMenu()
+    {
+        HideMenu(hostMenu);
+        HideMenu(joinMenu);
+        HideMenu(pauseMenu);
+        ShowMenu(mainMenu);
     }
 
     private void OnHostPressed()
     {
-        Debug.Log("Host Button Pressed");
-
-        // Hide the main menu container
-        var mainMenu = _document.rootVisualElement.Q<VisualElement>("ModeMenu");
-        if (mainMenu != null)
-        {
-            mainMenu.style.display = DisplayStyle.None;
-        }
-        else
-        {
-            Debug.LogError("MainMenu VisualElement not found. Ensure it has the correct name.");
-            return;
-        }
-
-       
-
-        // Create a new menu container for hosting
-        var hostMenu = new VisualElement();
-        hostMenu.name = "HostMenu";
-        hostMenu.AddToClassList("centerMenu");
-
-        // Create an input field for the port number
-        var portField = new TextField("Listening Port:");
-        portField.name = "hostPortField";
-        portField.AddToClassList("inputField");
-        hostMenu.Add(portField);
-
-        // Create buttons
-        var startButton = new Button(() => OnStartHostPressed(portField.text))
-        {
-            text = "Start"
-        };
-        startButton.AddToClassList("button");
-        hostMenu.Add(startButton);
-
-        var backButton = new Button(() => OnBackPressed(mainMenu, hostMenu))
-        {
-            text = "Back"
-        };
-        backButton.AddToClassList("button");
-        hostMenu.Add(backButton);
-
-        // Add the new menu to the parent container
-        parent.Add(hostMenu);
+        HideMenu(mainMenu);
+        ShowMenu(hostMenu);
     }
 
-
+    private void OnJoinPressed()
+    {
+        HideMenu(mainMenu);
+        ShowMenu(joinMenu);
+    }
 
     private void OnPrivatePressed()
     {
         Debug.Log("Private Button Pressed");
-
-        if (connectionManager == null)
-        {
-            Debug.LogError("ConnectionManager reference is null. Cannot start private session.");
-            return;
-        }
-
-        // Call StartPrivate on the ConnectionManager
-        connectionManager.StartPrivate();
-
-        if (mapGenerator != null) mapGenerator.SetActive(true);
-
-        // Hide the UIDocument by disabling it
+        connectionManager?.StartPrivate();
+        mapGenerator?.SetActive(true);
         _document.gameObject.SetActive(false);
     }
 
@@ -237,77 +222,65 @@ public class MainMenuUI : MonoBehaviour
     {
         Debug.Log("Exit Button Pressed");
 #if UNITY_EDITOR
-        // Stop playing the scene in the editor
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        // Quit the application in a build
         Application.Quit();
 #endif
     }
 
-    private void OnConnectPressed(string ip, string port)
-    {
-        Debug.Log("Connect Pressed");
-
-        if (connectionManager == null)
-        {
-            Debug.LogError("ConnectionManager reference is null. Cannot start connection.");
-            return;
-        }
-
-        // Try to convert the port to ushort
-        if (!ushort.TryParse(port, out ushort parsedPort))
-        {
-            Debug.LogError($"Invalid port number: {port}. Please enter a valid number between 0 and 65535.");
-            return;
-        }
-
-        // Call StartConnection on the ConnectionManager
-        connectionManager.StartConnection(ip, parsedPort);
-
-        if (mapGenerator != null) mapGenerator.SetActive(true);
-
-        // Hide the UIDocument by disabling it
-        _document.gameObject.SetActive(false);
-    }
-
-
     private void OnStartHostPressed(string port)
     {
-        // Add connection logic here
-        Debug.Log("Connect Start Host");
-
-        if (connectionManager == null)
+        if (ushort.TryParse(port, out ushort parsedPort))
         {
-            Debug.LogError("ConnectionManager reference is null. Cannot start private session.");
-            return;
+            connectionManager?.StartHosting(parsedPort);
+            mapGenerator?.SetActive(true);
+            _document.gameObject.SetActive(false);
         }
-
-        // Try to convert the port to ushort
-        if (!ushort.TryParse(port, out ushort parsedPort))
+        else
         {
-            Debug.LogError($"Invalid port number: {port}. Please enter a valid number between 0 and 65535.");
-            return;
+            Debug.LogError($"Invalid port number: {port}");
         }
+    }
 
-        // Call StartPrivate on the ConnectionManager
-        connectionManager.StartHosting(parsedPort);
+    private void OnConnectPressed(string ip, string port)
+    {
+        if (ushort.TryParse(port, out ushort parsedPort))
+        {
+            connectionManager?.StartConnection(ip, parsedPort);
+            mapGenerator?.SetActive(true);
+            _document.gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError($"Invalid port number: {port}");
+        }
+    }
 
-        if (mapGenerator != null) mapGenerator.SetActive(true);
+    private void OnBackPressed(VisualElement currentMenu, VisualElement targetMenu)
+    {
+        HideMenu(currentMenu);
+        ShowMenu(targetMenu);
+    }
 
-        // Hide the UIDocument by disabling it
+    private void OnResumePressed()
+    {
+        HideMenu(pauseMenu);
         _document.gameObject.SetActive(false);
     }
 
-
-    private void OnBackPressed(VisualElement mainMenu, VisualElement joinMenu)
+    public static void ShowPauseMenu()
     {
-        Debug.Log("Returning to Main Menu");
-
-        // Show the main menu
-        mainMenu.style.display = DisplayStyle.Flex;
-
-        // Remove the join menu
-        joinMenu.RemoveFromHierarchy();
+        if (instance != null)
+        {
+            instance._document.gameObject.SetActive(true);
+            instance.HideMenu(instance.mainMenu);
+            instance.HideMenu(instance.hostMenu);
+            instance.HideMenu(instance.joinMenu);
+            instance.ShowMenu(instance.pauseMenu);
+        }
+        else
+        {
+            Debug.LogError("MainMenuUI instance not initialized. Ensure the script is attached to a GameObject in the scene.");
+        }
     }
 }
