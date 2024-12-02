@@ -50,3 +50,8 @@
     margin-bottom: 50px;
     color: rgb(255, 255, 255);
 }
+
+.navBar {
+    background-color: rgba(0, 0, 0, 0.24);
+    color: rgb(255, 255, 255);
+}

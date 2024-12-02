@@ -4,6 +4,7 @@ using UnityEngine.UIElements;
 public class MainMenuUI : MonoBehaviour
 {
     private UIDocument _document;
+    private VisualElement parent;
 
     private Button hostButton;
     private Button joinButton;
@@ -27,21 +28,21 @@ public class MainMenuUI : MonoBehaviour
         }
 
         // Find buttons by their name
-        hostButton = _document.rootVisualElement.Q<Button>("hostButton");
-        joinButton = _document.rootVisualElement.Q<Button>("joinButton");
-        privateButton = _document.rootVisualElement.Q<Button>("privateButton");
+        //hostButton = _document.rootVisualElement.Q<Button>("hostButton");
+        //joinButton = _document.rootVisualElement.Q<Button>("joinButton");
+        //privateButton = _document.rootVisualElement.Q<Button>("privateButton");
         exitButton = _document.rootVisualElement.Q<Button>("exitButton");
 
-        if (hostButton == null || joinButton == null || privateButton == null || exitButton == null)
+        if (exitButton == null )//hostButton == null // || joinButton == null || privateButton == null)
         {
             Debug.LogError("One or more buttons are missing in the UI. Check their names in the UI Builder.");
             return;
         }
 
         // Attach callbacks to buttons
-        hostButton.clicked += OnHostPressed;
-        joinButton.clicked += OnJoinPressed;
-        privateButton.clicked += OnPrivatePressed;
+        ///hostButton.clicked += OnHostPressed;
+        ///joinButton.clicked += OnJoinPressed;
+        ///privateButton.clicked += OnPrivatePressed;
         exitButton.clicked += OnExitPressed;
 
         // Get the ConnectionManager reference (assuming it's in the same scene)
@@ -50,6 +51,19 @@ public class MainMenuUI : MonoBehaviour
         {
             Debug.LogError("ConnectionManager not found in the scene. Ensure it's added to the scene.");
         }
+
+        // Locate or create the parent for the new menu
+        parent = _document.rootVisualElement.Q<VisualElement>("MenuContainer");
+        if (parent == null)
+        {
+            Debug.LogWarning("MenuContainer not found. Creating a new container.");
+
+            // Dynamically create a new parent container
+            parent = new VisualElement { name = "MenuContainer" };
+            parent.style.flexDirection = FlexDirection.Column;
+            _document.rootVisualElement.Add(parent);
+        }
+        CreateModeMenu();
     }
 
     private void OnDisable()
@@ -61,6 +75,38 @@ public class MainMenuUI : MonoBehaviour
         if (exitButton != null) exitButton.clicked -= OnExitPressed;
     }
 
+    private void CreateModeMenu()
+    {
+        // Create modeMenu VisualElement
+        var modeMenu = new VisualElement { name = "ModeMenu" };
+        modeMenu.AddToClassList("centerMenu");
+
+        // Create buttons
+        var hostButton = new Button(() => OnHostPressed())
+        {
+            text = "Host"
+        };
+        var joinButton = new Button(() => OnJoinPressed())
+        {
+            text = "Join"
+        };
+        var privateButton = new Button(() => OnPrivatePressed())
+        {
+            text = "Private"
+        };
+
+        hostButton.AddToClassList("button");
+        joinButton.AddToClassList("button");
+        privateButton.AddToClassList("button");
+
+        // Add buttons to modeMenu
+        modeMenu.Add(hostButton);
+        modeMenu.Add(joinButton);
+        modeMenu.Add(privateButton);
+
+        // Add modeMenu to the root VisualElement
+        parent.Add(modeMenu);
+    }
     private void OnJoinPressed()
     {
         Debug.Log("Join Button Pressed");
@@ -81,16 +127,7 @@ public class MainMenuUI : MonoBehaviour
 
 
         // Locate or create the parent for the new menu
-        var parent = _document.rootVisualElement.Q<VisualElement>("MenuContainer");
-        if (parent == null)
-        {
-            Debug.LogWarning("MenuContainer not found. Creating a new container.");
-
-            // Dynamically create a new parent container
-            parent = new VisualElement { name = "MenuContainer" };
-            parent.style.flexDirection = FlexDirection.Column;
-            _document.rootVisualElement.Add(parent);
-        }
+        
 
         // Create a new menu container
         var joinMenu = new VisualElement();
@@ -143,17 +180,7 @@ public class MainMenuUI : MonoBehaviour
             return;
         }
 
-        // Locate or create the parent for the new menu
-        var parent = _document.rootVisualElement.Q<VisualElement>("MenuContainer");
-        if (parent == null)
-        {
-            Debug.LogWarning("MenuContainer not found. Creating a new container.");
-
-            // Dynamically create a new parent container
-            parent = new VisualElement { name = "MenuContainer" };
-            parent.style.flexDirection = FlexDirection.Column;
-            _document.rootVisualElement.Add(parent);
-        }
+       
 
         // Create a new menu container for hosting
         var hostMenu = new VisualElement();
