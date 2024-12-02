@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3977802163817710721}
   - component: {fileID: 7239211486938227204}
   - component: {fileID: 6905465464092135911}
-  - component: {fileID: 7546451677017130624}
+  - component: {fileID: -5512804978577267949}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -143,6 +143,7 @@ MonoBehaviour:
   cameraOffset: {x: 0, y: 100, z: -10}
   cameraLagSpeed: 5
   flightHeight: 150
+  activeWing: 0
 --- !u!54 &6905465464092135911
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -170,7 +171,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 16
   m_CollisionDetection: 0
---- !u!136 &7546451677017130624
+--- !u!136 &-5512804978577267949
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -189,7 +190,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 34.88553
-  m_Height: 96.82097
+  m_Radius: 48.410473
+  m_Height: 19.025148
   m_Direction: 1
-  m_Center: {x: 0.16947174, y: 3.07248, z: 12.975403}
+  m_Center: {x: 0.16947174, y: 12.975398, z: -3.0724792}

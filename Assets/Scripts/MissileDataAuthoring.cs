@@ -3,17 +3,21 @@ using UnityEngine;
 
 public class MissileDataAuthoring : MonoBehaviour
 {
-    public float Speed = 10f;      // Default speed
-    public float LifeTime = 5f;    // Default lifetime
+    public float speed = 80f;      // Default speed
+    public float lifeTime = 5f;    // Default lifetime
+    public float collidorSize = 1;
 
-    class Baker : Baker<MissileDataAuthoring>
+    public class MissileDataBaker : Baker<MissileDataAuthoring>
     {
         public override void Bake(MissileDataAuthoring authoring)
         {
-            AddComponent(new MissileData
+            Entity missileAuthoring = GetEntity(TransformUsageFlags.None);
+
+            AddComponent(missileAuthoring, new MissileData
             {
-                Speed = authoring.Speed,
-                LifeTime = authoring.LifeTime
+                speed = authoring.speed,
+                lifeTime = authoring.lifeTime,
+                colliderSize = authoring.collidorSize
             });
         }
     }

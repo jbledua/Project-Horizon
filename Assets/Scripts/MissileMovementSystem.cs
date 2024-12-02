@@ -22,13 +22,13 @@ public partial class MissileMovementSystem : SystemBase
         {
             // Move the missile forward
             float3 forward = math.forward(transform.ValueRO.Rotation);
-            transform.ValueRW.Position += forward * missileData.ValueRO.Speed * deltaTime;
+            transform.ValueRW.Position += forward * missileData.ValueRO.speed * deltaTime;
 
             // Decrease lifetime
-            missileData.ValueRW.LifeTime -= deltaTime;
+            missileData.ValueRW.lifeTime -= deltaTime;
 
             // Queue the missile for destruction if its lifetime expires
-            if (missileData.ValueRO.LifeTime <= 0)
+            if (missileData.ValueRO.lifeTime <= 0)
             {
                 commandBuffer.DestroyEntity(entity);
             }
