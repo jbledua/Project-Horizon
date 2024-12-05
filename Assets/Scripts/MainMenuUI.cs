@@ -25,7 +25,7 @@ public class MainMenuUI : MonoBehaviour
     [System.Obsolete]
     private void OnEnable()
     {
-        instance = this;
+       
 
         _document = GetComponent<UIDocument>();
         if (_document == null)
@@ -56,6 +56,9 @@ public class MainMenuUI : MonoBehaviour
         pauseMenu = CreatePauseMenu();
 
         ShowGameLogo();
+
+        instance = this;
+
     }
 
     private VisualElement CreateGameLogo()
@@ -105,6 +108,7 @@ public class MainMenuUI : MonoBehaviour
 
         var portField = new TextField("Listening Port:") { name = "hostPortField" };
         portField.AddToClassList("input");
+        portField.labelElement.AddToClassList("inputLabel");
 
         var startButton = new Button(() => OnStartHostPressed(portField.text)) { text = "Start" };
         var backButton = new Button(() => OnBackPressed(menu, mainMenu)) { text = "Back" };
@@ -133,7 +137,11 @@ public class MainMenuUI : MonoBehaviour
         var backButton = new Button(() => OnBackPressed(menu, mainMenu)) { text = "Back" };
 
         ipField.AddToClassList("input");
+        ipField.labelElement.AddToClassList("inputLabel");
+
         portField.AddToClassList("input");
+        portField.labelElement.AddToClassList("inputLabel");
+
         connectButton.AddToClassList("button");
         backButton.AddToClassList("button");
 
@@ -178,10 +186,14 @@ public class MainMenuUI : MonoBehaviour
 
     private void ShowGameLogo()
     {
-        ShowMenu(gameLogo);
+        if (instance == null)
+        {
+            ShowMenu(gameLogo);
 
-        // Schedule hiding the logo and showing the main menu
-        Invoke(nameof(ShowMainMenuAfterLogo), 3f); // Display logo for 3 seconds
+            // Schedule hiding the logo and showing the main menu
+            Invoke(nameof(ShowMainMenuAfterLogo), 3f); // Display logo for 3 seconds
+        }
+
     }
 
     private void ShowMainMenuAfterLogo()

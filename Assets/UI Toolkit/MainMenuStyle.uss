@@ -23,7 +23,7 @@
 }
 
 .centerMenu {
-    width: 800px;
+    width: 600px;
     background-color: rgba(0, 0, 0, 0.87);
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
@@ -34,21 +34,6 @@
     margin-right: 0;
     margin-bottom: 200px;
     align-self: center;
-}
-
-.input {
-    width: 300px;
-    height: 60px;
-    align-self: center;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-    font-size: 20px;
-    margin-top: 50px;
-    margin-right: 0;
-    margin-bottom: 50px;
-    color: rgb(255, 255, 255);
 }
 
 .navBar {
@@ -62,4 +47,22 @@
     background-image: url("project://database/Assets/UI%20Toolkit/Horizon-Logo-Dark.png?fileID=2800000&guid=6cc274d7cca34ff45804ad900ef67c8b&type=3#Horizon-Logo-Dark");
     height: 500px;
     align-self: center;
+}
+
+.input {
+    width: 500px;
+    height: 60px;
+    align-self: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    font-size: 20px;
+    margin-top: 50px;
+    margin-right: 0;
+    margin-bottom: 50px;
+}
+
+.inputLabel {
+    color: rgb(255, 255, 255);
 }
