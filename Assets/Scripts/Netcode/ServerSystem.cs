@@ -204,7 +204,7 @@ public partial class ServerSystem : SystemBase
     }
 
 
-    public static void SendMessageRpc(string text, World world, Entity connectionEntity = default)
+    protected static void SendMessageRpc(string text, World world, Entity connectionEntity = default)
     {
         if (world == null || world.IsCreated == false)
         {

@@ -39,8 +39,10 @@ public partial class ClientSystem : SystemBase
         commandBuffer.Playback(EntityManager);
         commandBuffer.Dispose();
     }
+
+
      
-    public static void SendMessageRpc(string text, World world)
+    public static void SendMessageToServerRpc(string text, World world)
     {
         if (world == null || world.IsCreated == false)
         {

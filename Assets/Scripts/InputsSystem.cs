@@ -43,7 +43,7 @@ public partial class InputsSystem : SystemBase
     private void OnPlayerShoot(InputAction.CallbackContext obj)
     { 
    
-        ClientSystem.SendMessageRpc("Shoot event triggered", ConnectionManager.clientWorld);
+        ClientSystem.SendMessageToServerRpc("Shoot event triggered", ConnectionManager.clientWorld);
     }
 
 
@@ -60,7 +60,7 @@ public partial class InputsSystem : SystemBase
             Vector3 _location = new Vector3(localTransform.Position.x, localTransform.Position.y, localTransform.Position.z);
 
             // Send the message with the player's position
-            ClientSystem.SendMessageRpc($"I am at {_location.x}, {_location.z} come and get me.", ConnectionManager.clientWorld);
+            ClientSystem.SendMessageToServerRpc($"I am at {_location.x}, {_location.z} come and get me.", ConnectionManager.clientWorld);
 
             break; // Break after finding the first local player
         }

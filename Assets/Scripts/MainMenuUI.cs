@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 
 public class MainMenuUI : MonoBehaviour
 {
+    [SerializeField]
     private UIDocument _document;
     private VisualElement parent;
 
@@ -19,6 +20,9 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField]
     private GameObject mapGenerator;
 
+    [SerializeField]
+    private GameObject playerHud;
+
     // Static instance for external access
     private static MainMenuUI instance;
 
@@ -26,8 +30,6 @@ public class MainMenuUI : MonoBehaviour
     private void OnEnable()
     {
        
-
-        _document = GetComponent<UIDocument>();
         if (_document == null)
         {
             Debug.LogError("UIDocument not found. Ensure a UIDocument is attached to this GameObject.");
@@ -63,13 +65,10 @@ public class MainMenuUI : MonoBehaviour
 
     private VisualElement CreateGameLogo()
     {
-        //var logo = new VisualElement { name = "GameLogo" };
-        //logo.AddToClassList("centerMenu");
 
         var logoLabel = new Label("Game Logo");
         logoLabel.AddToClassList("logoLabel");
 
-        //logo.Add(logoLabel);
         parent.Add(logoLabel);
 
         logoLabel.style.display = DisplayStyle.None;
@@ -227,6 +226,7 @@ public class MainMenuUI : MonoBehaviour
         Debug.Log("Private Button Pressed");
         connectionManager?.StartPrivate();
         mapGenerator?.SetActive(true);
+        playerHud?.SetActive(true);
         _document.gameObject.SetActive(false);
     }
 
@@ -246,6 +246,7 @@ public class MainMenuUI : MonoBehaviour
         {
             connectionManager?.StartHosting(parsedPort);
             mapGenerator?.SetActive(true);
+            playerHud?.SetActive(true);
             _document.gameObject.SetActive(false);
         }
         else
@@ -260,6 +261,7 @@ public class MainMenuUI : MonoBehaviour
         {
             connectionManager?.StartConnection(ip, parsedPort);
             mapGenerator?.SetActive(true);
+            playerHud?.SetActive(true);
             _document.gameObject.SetActive(false);
         }
         else

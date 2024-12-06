@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
 {
     public float speed = 5f;
     public float rotationSpeed = 5f;
+    
 
     public Vector3 cameraOffset = new Vector3(0f, 30f, -10f); // Default offset
     public float cameraLagSpeed = 2f; // Default lag speed
@@ -18,6 +19,7 @@ public struct PlayerData : IComponentData
 {
     public float speed;
     public float rotationSpeed;
+    //public float3 Position; // Add this to track the player's position
 
     public float3 cameraOffset;
     public float cameraLagSpeed;

@@ -36,26 +36,27 @@ public partial struct PlayerMovementJob : IJobEntity
         float3 movement = new float3(input.move.x, 0f, input.move.y) * player.speed * deltaTime;
 
         // Update position (maintaining flight height on Y-axis)
-        transform.Position = new float3(
+        float3 newPosition = new float3(
             transform.Position.x + movement.x,
-            player.flightHeight, // Always set to flight height
+            player.flightHeight,
             transform.Position.z + movement.z
         );
+
+        transform.Position = newPosition;
+        //player.Position = newPosition; // Update position in PlayerData
+
+        //Debug.Log($"PlayerData.Position: {player.Position}");
+
+
+        //Debug.Log("Position: "+ player.Position);
 
         // If there's input, calculate the forward direction and update rotation
         if (!math.all(movement == float3.zero))
         {
-            float3 forward = math.normalize(movement); // Normalize the movement vector
-
-            // Adjust the forward direction by rotating -90 degrees on the X-axis
-            quaternion baseRotation = quaternion.Euler(math.radians(0f), 0f, 0f);
-            quaternion targetRotation = quaternion.LookRotationSafe(forward, math.up()); // Calculate target rotation
-
-            // Combine the target rotation with the base adjustment
-            quaternion finalRotation = math.mul(targetRotation, baseRotation);
-
-            // Smoothly rotate towards the target
-            transform.Rotation = math.slerp(transform.Rotation, finalRotation, deltaTime * 10f);
+            float3 forward = math.normalize(movement);
+            quaternion targetRotation = quaternion.LookRotationSafe(forward, math.up());
+            transform.Rotation = math.slerp(transform.Rotation, targetRotation, deltaTime * 10f);
         }
     }
 }
+

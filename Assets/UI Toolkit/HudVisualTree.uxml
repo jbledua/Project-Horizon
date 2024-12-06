@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/HudStyle.uss?fileID=7433441132597879392&amp;guid=63c84ea8ba1df2b4ea51be9d3d8a6591&amp;type=3#HudStyle" />
+    <ui:VisualElement style="flex-grow: 1;">
+        <ui:Label text="Label" name="XCoordinateLabel" class="CoordinateLabel" />
+        <ui:Label text="Label" name="ZCoordinateLabel" class="CoordinateLabel" />
+    </ui:VisualElement>
+</ui:UXML>

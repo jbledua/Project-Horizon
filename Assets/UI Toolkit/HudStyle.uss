@@ -1,0 +1,8 @@
+.CoordinateLabel {
+    width: 100px;
+    -unity-text-align: upper-right;
+    font-size: 14px;
+    align-self: flex-end;
+    align-items: auto;
+    color: rgb(255, 255, 255);
+}
