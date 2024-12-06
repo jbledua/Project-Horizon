@@ -25,29 +25,43 @@ public partial class InputsSystem : SystemBase
 
         _controls = new PlayerMovementActions();
         _controls.Enable();
-        _controls.Player.Shoot.performed += OnPlayerShoot;
-        _controls.Player.Taunt.performed += OnTauntShoot;
+
         _controls.Player.Pause.performed += OnPause;
+        _controls.Player.Respawn.performed += OnRespawn;
+
+        _controls.Player.Taunt.performed += OnTaunt;
+        _controls.Player.Shoot.performed += OnShoot;
+        _controls.Player.Boost.performed += OnBoost;
 
 
     }
 
     protected override void OnDestroy()
     {
-        _controls.Disable();
-        _controls.Player.Shoot.performed -= OnPlayerShoot;
-        _controls.Player.Taunt.performed -= OnTauntShoot;
         _controls.Player.Pause.performed -= OnPause;
+        _controls.Player.Respawn.performed -= OnRespawn;
+
+        _controls.Player.Taunt.performed -= OnTaunt;
+        _controls.Player.Shoot.performed -= OnShoot;
+        _controls.Player.Boost.performed -= OnBoost;
     }
 
-    private void OnPlayerShoot(InputAction.CallbackContext obj)
-    { 
-   
+    private void OnShoot(InputAction.CallbackContext obj)
+    {
         ClientSystem.SendMessageToServerRpc("Shoot event triggered", ConnectionManager.clientWorld);
     }
 
+    private void OnBoost(InputAction.CallbackContext obj)
+    {
+        //ClientSystem.SendMessageToServerRpc("Boost event triggered", ConnectionManager.clientWorld);
+    }
 
-    private void OnTauntShoot(InputAction.CallbackContext obj)
+    private void OnRespawn(InputAction.CallbackContext obj)
+    {
+        ClientSystem.SendMessageToServerRpc("Respawn event triggered", ConnectionManager.clientWorld);
+    }
+
+    private void OnTaunt(InputAction.CallbackContext obj)
     {
         // Query for the local player's entity
         EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
@@ -60,7 +74,7 @@ public partial class InputsSystem : SystemBase
             Vector3 _location = new Vector3(localTransform.Position.x, localTransform.Position.y, localTransform.Position.z);
 
             // Send the message with the player's position
-            ClientSystem.SendMessageToServerRpc($"I am at {_location.x}, {_location.z} come and get me.", ConnectionManager.clientWorld);
+            ClientSystem.SendMessageToServerRpc($"I am at {_location.x:F2}, {_location.z:F2} come and get me.", ConnectionManager.clientWorld);
 
             break; // Break after finding the first local player
         }
@@ -74,14 +88,16 @@ public partial class InputsSystem : SystemBase
     protected override void OnUpdate()
     {
         Vector2 playerMove = _controls.Player.Move.ReadValue<Vector2>();
+        bool isBoosting = _controls.Player.Boost.IsPressed(); // Check if boost is pressed
 
         foreach (RefRW<PlayerInputData> input in SystemAPI.Query<RefRW<PlayerInputData>>().WithAll<GhostOwnerIsLocal>())
         {
             input.ValueRW.move = playerMove;
-
+            input.ValueRW.boost = isBoosting; // Set boost input state
         }
 
-       
+
+
     }
 
 }

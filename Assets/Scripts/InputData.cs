@@ -9,4 +9,5 @@ public struct PlayerInputData : IInputComponentData
     public float2 move;
     public InputEvent taunt;
     public InputEvent shoot;
+    public bool boost; // New field for boost
 }

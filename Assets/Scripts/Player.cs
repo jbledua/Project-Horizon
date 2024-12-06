@@ -5,6 +5,7 @@ using Unity.Mathematics;
 public class Player : MonoBehaviour
 {
     public float speed = 5f;
+    public float boostSpeed = 10f;
     public float rotationSpeed = 5f;
     
 
@@ -18,6 +19,7 @@ public class Player : MonoBehaviour
 public struct PlayerData : IComponentData
 {
     public float speed;
+    public float boostSpeed;
     public float rotationSpeed;
     //public float3 Position; // Add this to track the player's position
 
@@ -35,6 +37,7 @@ public class PlayerBaker : Baker<Player>
         AddComponent(entity, new PlayerData
         {
             speed = authoring.speed,
+            boostSpeed = authoring.boostSpeed,
             rotationSpeed = authoring.rotationSpeed,
             cameraOffset = authoring.cameraOffset,
             cameraLagSpeed = authoring.cameraLagSpeed,

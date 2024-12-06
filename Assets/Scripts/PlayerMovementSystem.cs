@@ -25,17 +25,23 @@ public partial struct PlayerMovementSystem : ISystem
         state.Dependency = job.ScheduleParallel(state.Dependency);
     }
 }
-
 public partial struct PlayerMovementJob : IJobEntity
 {
     public float deltaTime;
 
     public void Execute(ref PlayerData player, in PlayerInputData input, ref LocalTransform transform)
     {
-        // Calculate movement vector (X, Z plane only)
-        float3 movement = new float3(input.move.x, 0f, input.move.y) * player.speed * deltaTime;
+        // Always move forward
+        float3 forward = math.forward(transform.Rotation);
+        float3 movement = forward * player.speed * deltaTime;
 
-        // Update position (maintaining flight height on Y-axis)
+        // Apply boost if active
+        if (input.boost)
+        {
+            movement = forward * player.boostSpeed * deltaTime;
+        }
+
+        // Update position while maintaining flight height
         float3 newPosition = new float3(
             transform.Position.x + movement.x,
             player.flightHeight,
@@ -43,20 +49,16 @@ public partial struct PlayerMovementJob : IJobEntity
         );
 
         transform.Position = newPosition;
-        //player.Position = newPosition; // Update position in PlayerData
 
-        //Debug.Log($"PlayerData.Position: {player.Position}");
-
-
-        //Debug.Log("Position: "+ player.Position);
-
-        // If there's input, calculate the forward direction and update rotation
-        if (!math.all(movement == float3.zero))
+        // Handle rotation based on input
+        if (!math.all(input.move == float2.zero))
         {
-            float3 forward = math.normalize(movement);
-            quaternion targetRotation = quaternion.LookRotationSafe(forward, math.up());
-            transform.Rotation = math.slerp(transform.Rotation, targetRotation, deltaTime * 10f);
+            // Calculate target rotation
+            float3 targetDirection = math.normalize(new float3(input.move.x, 0f, input.move.y));
+            quaternion targetRotation = quaternion.LookRotationSafe(targetDirection, math.up());
+
+            // Smoothly rotate toward the target using rotationSpeed
+            transform.Rotation = math.slerp(transform.Rotation, targetRotation, deltaTime * player.rotationSpeed);
         }
     }
 }
-

@@ -140,6 +140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 50
+  boostSpeed: 100
   rotationSpeed: 5
   cameraOffset: {x: 0, y: 100, z: -10}
   cameraLagSpeed: 5
