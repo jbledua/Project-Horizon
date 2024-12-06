@@ -7,5 +7,6 @@ using Unity.NetCode;
 public struct PlayerInputData : IInputComponentData
 {
     public float2 move;
-    public InputEvent jump;
+    public InputEvent taunt;
+    public InputEvent shoot;
 }

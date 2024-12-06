@@ -60,7 +60,12 @@ public partial class ServerSystem : SystemBase
                     Value = player
                 });
 
-                Debug.Log("Player " + id.ValueRO.Value + " joined");
+                string _msg = "Player " + id.ValueRO.Value + " joined";
+                Debug.Log("Server: " + _msg);
+
+                ServerSystem.SendMessageRpc(_msg, ConnectionManager.serverWorld);
+                //ServerSystem.SendMessageRpc(_msg, ConnectionManager.clientWorld, player);
+
             }
 
         } // End foreach Joining
@@ -74,32 +79,24 @@ public partial class ServerSystem : SystemBase
 
             commandBuffer.DestroyEntity(entity);
 
-
-            //commandBuffer.AddComponent<InitializedClient>(entity);
-            //PrefabsData prefabManager = SystemAPI.GetSingleton<PrefabsData>();
-            //if (prefabManager.player != null)
-            //{
-            //    commandBuffer.SetComponent(player, new LocalTransform
-            //    {
-            //        Position = new float3(UnityEngine.Random.Range(-10, 10), 0, UnityEngine.Random.Range(-10, 10)),
-            //        Rotation = Quaternion.Euler(0f, 0f, 0f),
-            //        Scale = 0.1f
-            //    });
-
-            //    Debug.Log("Respaning player " + id.ValueRO.Value);
-            //}
-
         } // End foreach Respawn
 
         // Handle Client Messages
-        foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<ClientMessageRpcCommand>>().WithEntityAccess())
+        foreach (var (request, command, requestEntity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<ClientMessageRpcCommand>>().WithEntityAccess())
         {
-            Debug.Log(command.ValueRO.message + " from client index " + request.ValueRO.SourceConnection.Index + " version " + request.ValueRO.SourceConnection.Version);
-            commandBuffer.DestroyEntity(entity);
+            string _msg = command.ValueRO.message + " from client " + request.ValueRO.SourceConnection.Index;
+            Debug.Log("Server: " + _msg);
+
+
+            BroadcastMessageRpc(_msg);
+
+            commandBuffer.DestroyEntity(requestEntity);
+
+
         } // End foreach Messages
 
         // Handle Shooting Requests
-        foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<ShootMissileRpcCommand>>().WithEntityAccess())
+        foreach (var (request, command, requestEntity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<ShootMissileRpcCommand>>().WithEntityAccess())
         {
             PrefabsData prefabs;
             if (SystemAPI.TryGetSingleton<PrefabsData>(out prefabs) && prefabs.missile != null)
@@ -146,7 +143,7 @@ public partial class ServerSystem : SystemBase
                     });
 
                     // Destroy the request entity
-                    commandBuffer.DestroyEntity(entity);
+                    commandBuffer.DestroyEntity(requestEntity);
 
                     // Exit the loop after finding the player
                     break;
@@ -159,9 +156,55 @@ public partial class ServerSystem : SystemBase
         commandBuffer.Dispose();
     }
 
-   
+    // Function to send a message to all connected clients
+    public void BroadcastMessageRpc(string message)
+    {
+        if (ConnectionManager.serverWorld == null || !ConnectionManager.serverWorld.IsCreated)
+        {
+            Debug.LogWarning("Server world is not available.");
+            return;
+        }
 
-    public void SendMessageRpc(string text, World world, Entity target = default)
+        // Query all connections
+        var connectionQuery = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<NetworkId>());
+        using var connections = connectionQuery.ToEntityArray(Allocator.Temp);
+
+        // Send the message to all connections
+        foreach (var connection in connections)
+        {
+            SendMessageRpc(message, ConnectionManager.serverWorld, connection);
+        }
+    }
+
+    public void SendMessageToPlayerRpc(int playerId, string message)
+    {
+        if (ConnectionManager.serverWorld == null || !ConnectionManager.serverWorld.IsCreated)
+        {
+            Debug.LogWarning("Server world is not available.");
+            return;
+        }
+
+        // Query the specific player by their NetworkId
+        var connectionQuery = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<NetworkId>());
+        using var connections = connectionQuery.ToEntityArray(Allocator.Temp);
+        using var networkIds = connectionQuery.ToComponentDataArray<NetworkId>(Allocator.Temp);
+
+        for (int i = 0; i < networkIds.Length; i++)
+        {
+            if (networkIds[i].Value == playerId)
+            {
+                var targetEntity = connections[i];
+                SendMessageRpc(message, ConnectionManager.serverWorld, targetEntity);
+                Debug.Log($"Message sent to player {playerId}: {message}");
+                return;
+            }
+        }
+
+        Debug.LogWarning($"Player with ID {playerId} not found.");
+    }
+
+
+    public static void SendMessageRpc(string text, World world, Entity connectionEntity = default)
     {
         if (world == null || world.IsCreated == false)
         {
@@ -172,11 +215,11 @@ public partial class ServerSystem : SystemBase
         {
             message = text
         });
-        if (target != Entity.Null)
+        if (connectionEntity != Entity.Null)
         {
             world.EntityManager.SetComponentData(entity, new SendRpcCommandRequest()
             {
-                TargetConnection = target
+                TargetConnection = connectionEntity
             });
         }
     }
