@@ -64,7 +64,7 @@ public partial class ClientSystem : SystemBase
         world.EntityManager.CreateEntity(typeof(SendRpcCommandRequest), typeof(ShootMissileRpcCommand));
     }
 
-    public void RespawnPlayerRPC(World world)
+    public static void RespawnPlayerRPC(World world)
     {
         if (world == null || world.IsCreated == false)
         {

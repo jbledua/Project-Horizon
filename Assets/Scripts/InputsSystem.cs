@@ -58,7 +58,9 @@ public partial class InputsSystem : SystemBase
 
     private void OnRespawn(InputAction.CallbackContext obj)
     {
-        ClientSystem.SendMessageToServerRpc("Respawn event triggered", ConnectionManager.clientWorld);
+        //ClientSystem.SendMessageToServerRpc("Respawn event triggered", ConnectionManager.clientWorld);
+        ClientSystem.RespawnPlayerRPC( ConnectionManager.clientWorld);
+
     }
 
     private void OnTaunt(InputAction.CallbackContext obj)

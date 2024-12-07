@@ -156,6 +156,8 @@ public partial class ServerSystem : SystemBase
         commandBuffer.Dispose();
     }
 
+
+
     // Function to send a message to all connected clients
     public void BroadcastMessageRpc(string message)
     {

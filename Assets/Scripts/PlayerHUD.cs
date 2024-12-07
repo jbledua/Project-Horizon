@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine.Networking;
 
 public class PlayerHUD : MonoBehaviour
 {
@@ -34,6 +35,7 @@ public class PlayerHUD : MonoBehaviour
 
     void Update()
     {
+
         if (_xLabel != null && _zLabel != null && _playerQuery.CalculateEntityCount() > 0)
         {
             // Get the player entity
