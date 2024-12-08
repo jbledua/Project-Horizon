@@ -14,6 +14,8 @@ public class Player : MonoBehaviour
     public float flightHeight = 10f; // Default flight height for top-down jet
     public bool activeWing;    // Tracks the currently active wing (true = right, false = left)
 
+    public bool localPlayer = false;
+
 }
 
 public struct PlayerData : IComponentData
@@ -27,6 +29,7 @@ public struct PlayerData : IComponentData
     public float cameraLagSpeed;
     public float flightHeight; // Player's flight height
     public bool activeWing;    // Tracks the currently active wing (true = right, false = left)
+    public bool localPlayer;
 }
 
 public class PlayerBaker : Baker<Player>
@@ -43,6 +46,7 @@ public class PlayerBaker : Baker<Player>
             cameraLagSpeed = authoring.cameraLagSpeed,
             flightHeight = authoring.flightHeight,
             activeWing = authoring.activeWing,
+            localPlayer = authoring.localPlayer
         }); 
         AddComponent<PlayerInputData>(entity);
     }

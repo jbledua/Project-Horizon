@@ -31,6 +31,7 @@ public class PlayerHUD : MonoBehaviour
         _playerQuery = _entityManager.CreateEntityQuery(
             ComponentType.ReadOnly<PlayerData>(),
             ComponentType.ReadOnly<LocalTransform>());
+
     }
 
     void Update()
