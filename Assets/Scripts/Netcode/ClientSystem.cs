@@ -39,6 +39,22 @@ public partial class ClientSystem : SystemBase
 
         commandBuffer.Playback(EntityManager);
         commandBuffer.Dispose();
+
+        var localNetworkId = SystemAPI.GetSingleton<NetworkId>().Value; // Get local client's NetworkId
+
+        Entities.ForEach((Entity entity, ref PlayerData playerData, in GhostOwner owner) =>
+        {
+            // Check if the player is owned by the local client
+            if (owner.NetworkId == localNetworkId)
+            {
+                playerData.localPlayer = true; // Set as local player
+            }
+            else
+            {
+                playerData.localPlayer = false; // Ensure others are not marked as local
+            }
+        }).ScheduleParallel();
+   
     }
 
 
