@@ -89,7 +89,35 @@ public partial class InputsSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        Vector2 playerMove = _controls.Player.Move.ReadValue<Vector2>();
+        Vector2 playerMove = Vector2.zero;
+
+        // Read movement from keyboard/controller
+        Vector2 controllerMove = _controls.Player.Move.ReadValue<Vector2>();
+
+        // Read touch input
+        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
+        {
+            Vector2 touchPosition = Touchscreen.current.primaryTouch.position.ReadValue();
+
+            // Normalize touch position to range [-1, 1] assuming the touch input represents the movement
+            float screenWidth = Screen.width;
+            float screenHeight = Screen.height;
+
+            // Convert touch position to normalized coordinates (0 to 1)
+            Vector2 normalizedTouch = new Vector2(touchPosition.x / screenWidth, touchPosition.y / screenHeight);
+
+            // Adjust to match the range expected for movement (-1 to 1)
+            normalizedTouch = (normalizedTouch - new Vector2(0.5f, 0.5f)) * 2;
+
+            playerMove = normalizedTouch; // Assign normalized touch as the movement vector
+        }
+
+        // Combine inputs (use the controller/keyboard input if touch is not active)
+        if (playerMove == Vector2.zero)
+        {
+            playerMove = controllerMove;
+        }
+
         bool isBoosting = _controls.Player.Boost.IsPressed(); // Check if boost is pressed
 
         foreach (RefRW<PlayerInputData> input in SystemAPI.Query<RefRW<PlayerInputData>>().WithAll<GhostOwnerIsLocal>())
@@ -97,9 +125,7 @@ public partial class InputsSystem : SystemBase
             input.ValueRW.move = playerMove;
             input.ValueRW.boost = isBoosting; // Set boost input state
         }
-
-
-
     }
+
 
 }
